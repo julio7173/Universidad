@@ -1,0 +1,200 @@
+<meta charset="UTf=8">
+
+<html>
+
+    <head>
+
+        <style>
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #f5f5f5;
+            }
+
+            .card {
+                width: 400px;
+                height: 500px;
+                border-radius: 20px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                background-color: white;
+                overflow: hidden;
+            }
+
+            .card-header {
+                height: 40%;
+                background-image: url("https://i.imgur.com/6Xw2Z7s.jpg");
+                background-size: cover;
+                background-position: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-end;
+            }
+
+            .card-header h1 {
+                color: white;
+                font-size: 36px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+
+            .card-header p {
+                color: white;
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+
+            .card-body {
+                height: 60%;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .form-group {
+                width: 80%;
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                color: #333333;
+                font-size: 14px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            .form-group input {
+                width: 100%;
+                height: 40px;
+                padding-left: 10px;
+                border-radius: 10px;
+                border: none; 
+                outline:none; 
+                -webkit-appearance:none; 
+                -moz-appearance:none; 
+                appearance:none; 
+                -webkit-box-shadow:none; 
+                -moz-box-shadow:none; 
+                box-shadow:none; 
+                -webkit-border-radius:none; 
+                -moz-border-radius:none; 
+                border-radius:none; 
+                -webkit-transition-duration:.3s; 
+                transition-duration:.3s; 
+                -webkit-transition-property:border-color,box-shadow,color; 
+                transition-property:border-color,box-shadow,color; 
+                background-color:#F5F5F5; 
+                color:#333333; 
+                border:solid thin #E6E6E6
+            }
+
+            .form-group input:focus { 
+                border:solid thin #007BFF; 
+                box-shadow:#007BFF
+            }
+
+            .form-group input[type="password"] {
+                position:relative
+            }
+
+            .form-group .eye-icon { 
+                position:absolute; right:180px; top:357px; cursor:pointer
+            }
+
+            .form-group button { 
+                width:auto; height:auto; padding:.75rem .75rem .75rem .75rem; border-radius:.25rem; border:none; outline:none; -webkit-appearance:none; -moz-appearance:none; appearance:none; -webkit-box-shadow:none; -moz-box-shadow:none; box-shadow:none; -webkit-border-radius:.25rem; -moz-border-radius:.25rem; border-radius:.25rem; -webkit-transition-duration:.3s; transition-duration:.3s; -webkit-transition-property:border-color,box-shadow,color,background-color,opacity,-webkit-transform,-ms-transform,transform,-webkit-filter,-moz-filter,filter,-webkit-backface-visibility,-moz-backface-visibility,backface-visibility,-webkit-perspective,-moz-perspective,perspective;-moz-transition-property:border-color,box-shadow,color,background-color,opacity,-webkit-transform,-ms-transform,transform,-webkit-filter,-moz-filter,filter,-webkit-backface-visibility,-moz-backface-visibility,backface-visibility,-webkit-perspective,-moz-perspective,perspective;-o-transition-property:border-color,box-shadow,color,background-color,opacity,-webkit-transform,-ms-transform,transform,-webkit-filter,-moz-filter,filter,-webkit-backface-visibility,-moz-backface-visibility,backface-visibility,-webkit-perspective,-moz-perspective,perspective;-ms-transition-property:border-color,box-shadow,color,background-color,opacity,-ms-transform,webkit-transform,-ms-transform,transform,-webkit-filter,-moz-filter,filter,-webkit-backface-visibility,-moz-backface-visibility,backface-visibility,-webkit-perspective,-moz-perspective,perspective;transition-property:border-color,box-shadow,color,background-color,opacity,-webkit-transform,-ms-transform,transform,-webkit-filter,-moz-filter,filter,-webkit-backface-visibility,-moz-backface-visibility,backface-visibility,-webkit-perspective,-moz-perspective,perspective;background-color:#007BFF;color:#FFFFFF;font-size:1rem;font-weight:400;text-align:center;cursor:pointer
+            }
+
+            .form-group button:hover { 
+                background-color:#0069D9
+            }
+
+            .form-group button:active { 
+                background-color:#0062CC
+            }
+
+            .form-group a { 
+                display:block; color:#333333; font-size:14px; text-align:center; text-decoration:none
+            }
+
+            .form-group a:hover { 
+                text-decoration:underline
+            }
+        </style>
+
+        <script>
+
+            function togglePasswordVisibility() {
+                var passwordInput = document.getElementById("password");
+                var eyeIcon = document.getElementById("eye-icon");
+                if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.innerHTML = "&#128065;";
+                } else {
+                passwordInput.type = "password";
+                eyeIcon.innerHTML = "&#128064;";
+                }
+            }
+
+            function login() {
+                var emailInput = document.getElementById("email");
+                var passwordInput = document.getElementById("password");
+                var email = emailInput.value.trim();
+                var password = passwordInput.value.trim();
+                if (email === "" || password === "") {
+                alert("Por favor, ingresa tu correo electrónico y tu contraseña.");
+                return;
+                }
+                // Aquí puedes validar el correo electrónico y la contraseña con una base de datos o una API
+                // Si el log in es exitoso, puedes redirigir al usuario a otra página o mostrar un mensaje de bienvenida
+                alert("Log in exitoso.");
+            }
+
+        </script>
+
+    </head>
+
+    <body>
+
+        <div class="container">
+        <div class="card">
+        <div class="card-header">
+        <h1>UMSS</h1>
+        <p>Universidad Mayor de San Simón</p>
+        </div>
+        <div class="card-body">
+        <div class="form-group">
+        <label for="email">Correo electrónico:</label>
+        <input type="email" id="email" placeholder="ejemplo@correo.com">
+        </div>
+        <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" placeholder="********">
+        <span id="eye-icon" class="eye-icon" onclick="togglePasswordVisibility()">&#128064;</span>
+        </div>
+        <div class="form-group">
+        <button onclick="login()">Iniciar sesión</button>
+        </div>
+        <div class="form-group">
+        <a href="#">¿Olvidaste tu contraseña?</a>
+        <a href="#">¿No tienes una cuenta? Regístrate</a>
+        </div>
+        </div>
+        </div>
+        </div>
+
+    </body>
+    
+</html>
