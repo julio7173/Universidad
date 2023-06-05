@@ -302,7 +302,7 @@ public class Frm_pestañas extends JFrame {
         pastel2.setValue("PCu2", mapa.get("PCu2")); // Añade el valor asociado a la clave "PCu2" en el mapa con la etiqueta "PCu2" al conjunto de datos
         
         p2 = ChartFactory.createPieChart( // Crea un objeto JFreeChart que representa el segundo gráfico de pastel usando una fábrica de gráficos
-                "La más usada", // El título del gráfico
+                "La más buscada", // El título del gráfico
                 pastel2, // El conjunto de datos del gráfico
                 true, // Si se muestra o no la leyenda del gráfico
                 true, // Si se muestra o no las herramientas del gráfico
