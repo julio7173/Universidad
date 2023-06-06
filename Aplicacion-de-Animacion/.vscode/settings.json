@@ -1,0 +1,13 @@
+{
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "c:\\Users\\ASUS ZEPHYRUS G14\\Downloads\\jfreechart-1.0.19\\jfreechart-1.0.19\\lib\\jfreechart-1.0.19.jar",
+            "Libraries/jcommon-1.0.23.jar",
+            "Libraries/jfreechart-1.0.19.jar"
+        ],
+        "exclude": [
+            "c:\\Users\\ASUS ZEPHYRUS G14\\Downloads\\jfreechart-1.0.19\\jfreechart-1.0.19\\lib\\jcommon-1.0.23.jar"
+        ]
+    }
+}
