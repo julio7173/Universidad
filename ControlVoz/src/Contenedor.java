@@ -170,6 +170,10 @@ public class Contenedor implements Runnable {
         figuras.add(figura);
         Collections.sort(figuras);
     }
+    public void addFigura(String name, Figura figura) {
+        figurash.put(name, figura);
+        addFigura(figura);
+    }
     private Recognizer rec;
 
     public void escuchar() {

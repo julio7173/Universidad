@@ -50,4 +50,18 @@ public interface Animacion {
             figura.setY(y);
         }
     };
+    Animacion FOLLOW_MOUSE = new Animacion() {
+        @Override
+        public void animar(Figura figura, Contenedor contenedor) {
+            int x = figura.getX();
+            int y = figura.getY();
+
+            x = contenedor.getInput().getMouseX();
+            y = contenedor.getInput().getMouseY();
+
+            // Actualizar las coordenadas x e y de la figura
+            figura.setX(x);
+            figura.setY(y);
+        }
+    };
 }
