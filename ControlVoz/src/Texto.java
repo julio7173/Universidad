@@ -29,7 +29,7 @@ public class Texto extends Figura{
         this.X = x;
         this.Y = y;
         this.texto = texto;
-        visible = true;
+        this.visible = true;
         this.color = Color.black;
         this.background = Color.white;
         this.altura = 0;

@@ -3,3 +3,19 @@
 public <figuras> = (jhon);
 
 public <figuras> = (fly);
+
+public <figuras> = (jhon);
+
+public <figuras> = (fly);
+
+public <figuras> = (jhon);
+
+public <figuras> = (fly);
+
+public <figuras> = (jhon);
+
+public <figuras> = (fly);
+
+public <figuras> = (jhon);
+
+public <figuras> = (fly);

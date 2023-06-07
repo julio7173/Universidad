@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class ejemplo extends ContenedorAbstracto {
-    private Texto textoActual;
+    private Figura textoActual;
     public static void main(String[] args) {
         Contenedor gc = new Contenedor(new ejemplo(), 700, 500, 2, 20);
         gc.addFigura("jhon", new Cuadrado(60, 67, 50, Color.CYAN, 1).setAnimacion(Animacion.DVD));
@@ -27,12 +27,13 @@ public class ejemplo extends ContenedorAbstracto {
                     &&(gc.getInput().getMouseY() >= value.getY()) && (gc.getInput().getMouseY() <= (value.getY()+value.getAltura()))) {
                     if (textoActual != null) {
                         if (textoActual.isVisible()) {
-                            textoActual = null;
+                            textoActual.setVisible(false);
                         } else {
                             textoActual.setVisible(true);
                         }
                     } else {
-                        gc.addFigura(new Texto("pruebaaa", gc.getInput().getMouseX(), gc.getInput().getMouseY()).setAnimacion(Animacion.FOLLOW_MOUSE).setAnimable(true));
+                        textoActual = new Texto("pruebaaa", gc.getInput().getMouseX(), gc.getInput().getMouseY()).setAnimacion(Animacion.FOLLOW_MOUSE).setAnimable(true);
+                        gc.addFigura(textoActual);
                     }
                     value.setAnimable(!value.animable);
                     System.out.println("Key: " + figura.getKey());
