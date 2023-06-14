@@ -4,16 +4,15 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-import javax.lang.model.type.NoType;
 import javax.swing.*;
-import javax.swing.event.MouseInputListener;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-public class CanvasPanelExample {
+public class Aplicacion {
     public static void main(String[] args) {
         CanvasFrame frame = new CanvasFrame();
         frame.run();
@@ -58,7 +57,7 @@ class CanvasFrame extends JFrame {
 
         menuItemConstruir.addActionListener(e -> {
             canvasPanel.removeAll();
-            canvasPanel.add(new JLabel("Construir"));
+            construir();
             canvasPanel.revalidate();
             canvasPanel.repaint();
         });
@@ -84,25 +83,85 @@ class CanvasFrame extends JFrame {
         getContentPane().add(canvasPanel);
         imagenes();
     }
+
+    private void construir() {
+        // botones
+
+        JPanel leftPanel = new JPanel();
+        leftPanel.setBackground(Color.decode("#15191d"));
+        leftPanel.setLayout(new GridLayout(0, 2, 0, 10)); // Usamos FlowLayout y establecemos los márgenes a 0
+        leftPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JLabel color = new JLabel("Color");
+        color.setOpaque(true);
+        leftPanel.add(color);
+
+        String[] opcionesColor = {"rojo", "verde", "azul", "rosa", "celeste"};
+        JComboBox<String> coloresOpcion = new JComboBox<>(opcionesColor);
+        leftPanel.add(coloresOpcion);
+
+        JLabel envase = new JLabel("Envase");
+        envase.setOpaque(true);
+        leftPanel.add(envase);
+
+        String[] opcionesEnvases = {"Cuadrado", "Circular", "Largo"};
+        JComboBox<String> envasesOpcion = new JComboBox<>(opcionesEnvases);
+        leftPanel.add(envasesOpcion);
+
+        JLabel animacionLabel = new JLabel("Animacion");
+        animacionLabel.setOpaque(true);
+        leftPanel.add(animacionLabel);
+
+        String[] opcionesAnimaciones = {"Aparecer", "Desvanecer", "Parpadear"};
+        JComboBox<String> animacionesOpcion = new JComboBox<>(opcionesAnimaciones);
+        leftPanel.add(animacionesOpcion);
+
+        JButton saveButton = new JButton("Guardar");
+        leftPanel.add(saveButton);
+        for (int i = 0; i < 20 ; i++) {
+            leftPanel.add(new JLabel());
+        }
+
+        // canvas derecha
+        Canvas canvas = new Canvas();
+        canvas.setBackground(Color.RED);
+
+        // union de ambos
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, canvas);
+        splitPane.setDividerLocation(0.5);
+        splitPane.setEnabled(false);
+        splitPane.setResizeWeight(0.15);
+        splitPane.setDividerSize(0); // Establece el tamaño del divisor en cero
+
+        canvasPanel.add(splitPane);
+    }
+
     private void imagenes() {
+
         JPanel lista = new JPanel();
         lista.setBackground(Color.WHITE);
         lista.setLayout(new GridBagLayout());
 
         searchButton.setHorizontalAlignment(SwingConstants.CENTER);
-        textField.setHorizontalAlignment(SwingConstants.CENTER);
+        textField.setHorizontalAlignment(SwingConstants.LEFT);
 
         JPanel busqueda = new JPanel();
         busqueda.setBackground(Color.decode("#15191d"));
         busqueda.setLayout(new FlowLayout(FlowLayout.CENTER));
+        busqueda.add(searchButton);
+        busqueda.add(textField);
+
+        JPanel informacion = new JPanel();
+        informacion.setBackground(Color.decode("#15191d"));
+
 
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10); // Espacio entre componentes
 
         // Agrega los Canvas al panel
-        for (int i = 0; i < 9; i++) {
-            ImageCanvas canvas = new ImageCanvas(); // Utiliza la clase ImageCanvas personalizada
+        for (int i = 0; i < 29; i++) {
+            ImageCanvas canvas = new ImageCanvas(informacion); // Utiliza la clase ImageCanvas personalizada
             canvas.setPreferredSize(new Dimension(200, 200)); // Tamaño deseado de cada Canvas
 
             // Configura la restricción del GridBagLayout para mantener la forma cuadrada
@@ -114,14 +173,20 @@ class CanvasFrame extends JFrame {
 
             lista.add(canvas, gbc);
         }
+
+
         JScrollPane scrollPane = new JScrollPane(lista);
         scrollPane.getVerticalScrollBar().setUnitIncrement(64);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(64);
+        JSplitPane listaInformacion = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, informacion, scrollPane);
+        listaInformacion.setDividerLocation(0.25);
+        listaInformacion.setEnabled(false);
+        listaInformacion.setResizeWeight(0.8);
+        listaInformacion.setDividerSize(0);
 
-        busqueda.add(searchButton);
-        busqueda.add(textField);
         canvasPanel.add(busqueda, BorderLayout.NORTH);
-        canvasPanel.add(scrollPane, BorderLayout.CENTER);
+        canvasPanel.add(listaInformacion, BorderLayout.CENTER);
+
     }
 
     private void estadisticas() {
@@ -137,8 +202,10 @@ class CanvasFrame extends JFrame {
 class ImageCanvas extends Canvas {
     private BufferedImage image;
     private Color color;
+    private JPanel padre;
 
-    public ImageCanvas() {
+    public ImageCanvas(JPanel padre) {
+        this.padre = padre;
         color = randomColor();
 
         // Carga la imagen en un hilo separado
@@ -154,10 +221,30 @@ class ImageCanvas extends Canvas {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                color = randomColor(); // Cambia el color al hacer clic
-                repaint(); // Vuelve a dibujar el Canvas
+                mostrarColor(color);
             }
         });
+    }
+    public ImageCanvas(ImageCanvas copiar) {
+        this.padre = copiar.padre;
+        this.color = copiar.color;
+        this.image = copiar.image;
+    }
+    private void mostrarColor(Color color) {
+        // Crea un JLabel y establece su tamaño y color de fondo
+        JLabel colorLabel = new JLabel();
+        colorLabel.setText(color.toString());
+        colorLabel.setOpaque(true);
+        colorLabel.setBackground(color);
+
+        padre.removeAll();
+        ImageCanvas nuevo = new ImageCanvas(this);
+        nuevo.setPreferredSize(new Dimension(250, 250));
+        padre.add(nuevo);
+
+        // Vuelve a dibujar el panel para reflejar los cambios
+        padre.revalidate();
+        padre.repaint();
     }
     private Color randomColor() {
         Random random = new Random();
