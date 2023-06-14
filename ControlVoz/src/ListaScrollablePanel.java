@@ -2,6 +2,8 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ListaScrollablePanel extends JPanel {
 
@@ -18,20 +20,16 @@ public class ListaScrollablePanel extends JPanel {
 
 
         scrollPane = new JScrollPane(canvasPanel);
-        scrollPane.setVerticalScrollBar(new CustomScrollBar(JScrollBar.VERTICAL)); // cambiamos forma de scroll vertical
-        scrollPane.setHorizontalScrollBar(new CustomScrollBar(JScrollBar.HORIZONTAL)); // cambiamos forma de scroll horizontal
-        scrollPane.getVerticalScrollBar().setUnitIncrement(64); // Ajusta la velocidad del scroll vertical
-        scrollPane.getHorizontalScrollBar().setUnitIncrement(64); // Ajusta la velocidad del scroll horizontal
-        // Agregar MouseWheelListener al JScrollPane
         canvasPanel.addMouseWheelListener(new MouseWheelListener() {
+            @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
-                verticalScrollBar.setValue(verticalScrollBar.getValue() + (e.getWheelRotation() * verticalScrollBar.getUnitIncrement()));
+
             }
         });
         add(scrollPane, BorderLayout.CENTER);
-
-        for (int i = 0; i < 13; i++) {
+        List<Figura> perfumes = Figura.cargarLista("./perfumes.txt");
+        System.out.println(perfumes.size());
+        for (int i = 0; i < perfumes.size(); i++) {
             Imagenes canvas = new Imagenes();
             canvas.setPreferredSize(new Dimension(250, 250));
             GridBagConstraints gbc = new GridBagConstraints();

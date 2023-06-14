@@ -1,6 +1,9 @@
 import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public abstract class Figura implements Comparable<Figura>{
+public abstract class Figura implements Comparable<Figura>, Serializable {
     protected Color color;
     protected int X;
     protected int Y;
@@ -112,6 +115,30 @@ public abstract class Figura implements Comparable<Figura>{
 
     public void setColor(Color color) {
         this.color = color;
+    }
+    public static void guardarLista(List<Figura> lista, String archivo) {
+        try {
+            FileOutputStream fileOut = new FileOutputStream(archivo);
+            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(lista);
+            objectOut.close();
+            System.out.println("Lista de perfumes guardada en: " + archivo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static List<Figura> cargarLista(String archivo) {
+        List<Figura> lista = new ArrayList<>();
+        try {
+            FileInputStream fileIn = new FileInputStream(archivo);
+            ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+            lista = (List<Figura>) objectIn.readObject();
+            objectIn.close();
+            System.out.println("Lista cargada correctamente desde el archivo " + archivo);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }
 

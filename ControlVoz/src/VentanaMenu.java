@@ -3,6 +3,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.ui.tabbedui.VerticalLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -63,11 +64,24 @@ public class VentanaMenu extends JFrame {
 
         panelContenido = new JPanel();
         panelContenido.setLayout(new BorderLayout());
-
         scrollPane = new JScrollPane(panelContenido);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(64); // Ajusta la velocidad del scroll vertical
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(64); // Ajusta la velocidad del scroll horizontal
+        MouseWheelListener mouseWheel = new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getValue() +
+                        (e.getWheelRotation()*scrollPane.getVerticalScrollBar().getUnitIncrement()));
+
+            }
+        };
+        addMouseWheelListener(mouseWheel);
+
 
         getContentPane().add(scrollPane);
+
+        cambiarContenido("Buscador");
     }
 
     private void cambiarContenido(String opcion) {
@@ -109,22 +123,6 @@ public class VentanaMenu extends JFrame {
             g.fillOval(x, y, diameter, diameter);
         }
     }
-
-    private class CustomLabelTriangulo extends JLabel {
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            int width = getWidth();
-            int height = getHeight();
-            int[] xPoints = {width / 2, width / 4, (3 * width) / 4};
-            int[] yPoints = {height / 4, (3 * height) / 4, (3 * height) / 4};
-
-            g.setColor(Color.BLUE);
-            g.fillPolygon(xPoints, yPoints, 3);
-        }
-    }
-
     private class EstadisticasPanel extends JPanel {
         public EstadisticasPanel() {
             setLayout(new BorderLayout());
@@ -140,7 +138,7 @@ public class VentanaMenu extends JFrame {
 
             // Crear gráfico de barras
             JFreeChart chart = ChartFactory.createBarChart(
-                    "Gráfico de Barras",
+                    "Animaciones Usadas",
                     "Categorías",
                     "Valores",
                     dataset,
