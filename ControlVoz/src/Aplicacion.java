@@ -102,7 +102,29 @@ class CanvasFrame extends JFrame {
         color.setOpaque(true);
         leftPanel.add(color);
 
-        String[] opcionesColor = {"rojo", "verde", "azul", "rosa", "celeste"};
+        String[] opcionesColor = {
+                "rojo",
+                "verde",
+                "azul",
+                "rosa",
+                "celeste",
+                "amarillo",
+                "naranja",
+                "violeta",
+                "gris",
+                "marrón",
+                "turquesa",
+                "negro",
+                "blanco",
+                "morado",
+                "dorado",
+                "plateado",
+                "cian",
+                "salmon",
+                "verde lima",
+                "gris oscuro",
+                "azul marino"
+        };
         JComboBox<String> coloresOpcion = new JComboBox<>(opcionesColor);
         leftPanel.add(coloresOpcion);
 
@@ -177,6 +199,38 @@ class CanvasFrame extends JFrame {
                 return Color.PINK;
             case "celeste":
                 return new Color(0, 191, 255); // Código de color RGB para celeste
+            case "amarillo":
+                return Color.YELLOW;
+            case "naranja":
+                return Color.ORANGE;
+            case "violeta":
+                return new Color(148, 0, 211); // Código de color RGB para violeta
+            case "gris":
+                return Color.GRAY;
+            case "marrón":
+                return new Color(139, 69, 19); // Código de color RGB para marrón
+            case "turquesa":
+                return new Color(64, 224, 208); // Código de color RGB para turquesa
+            case "negro":
+                return Color.BLACK;
+            case "blanco":
+                return Color.WHITE;
+            case "morado":
+                return new Color(128, 0, 128); // Código de color RGB para morado
+            case "dorado":
+                return new Color(255, 215, 0); // Código de color RGB para dorado
+            case "plateado":
+                return new Color(192, 192, 192); // Código de color RGB para plateado
+            case "cian":
+                return new Color(0, 255, 255); // Código de color RGB para cian
+            case "salmon":
+                return new Color(250, 128, 114); // Código de color RGB para salmón
+            case "verde lima":
+                return new Color(50, 205, 50); // Código de color RGB para verde lima
+            case "gris oscuro":
+                return new Color(169, 169, 169); // Código de color RGB para gris oscuro
+            case "azul marino":
+                return new Color(0, 0, 128); // Código de color RGB para azul marino
             default:
                 return Color.BLACK; // negro si no es ninguno de los anteriores
         }
