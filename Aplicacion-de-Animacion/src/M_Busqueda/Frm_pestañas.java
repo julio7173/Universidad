@@ -7,9 +7,15 @@ package M_Busqueda;
 
 // Estas son las importaciones de las clases y paquetes necesarios para el programa
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.HashMap;
+
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -211,11 +217,14 @@ public class Frm_pestañas extends JFrame {
         JFileChooser catalogo = new JFileChooser(); // Crea un objeto JFileChooser para mostrar el selector de archivos
         FileNameExtensionFilter filtrado = new FileNameExtensionFilter("png", "png"); // Crea un objeto FileNameExtensionFilter para filtrar los archivos con extensión png
         catalogo.setFileFilter(filtrado); // Establece el objeto FileNameExtensionFilter como el filtro de archivos del objeto JFileChooser
-        
+        String rutaPer = System.getProperty("user.dir") + "/src/Imagenes-Perfumes"; // Obtiene la ruta del directorio usando la propiedad user.dir
+        File dirPer = new File(rutaPer); // Crea un objeto File con la ruta del directorio
+        catalogo.setCurrentDirectory(dirPer); // Establece el directorio actual del selector de archivos
+
         int respuesta = catalogo.showOpenDialog(this); // Muestra el selector de archivos y guarda la respuesta del usuario en una variable de tipo int
         
         if(respuesta == JFileChooser.APPROVE_OPTION){ // Si el usuario aprueba la selección del archivo
-            ruta = catalogo.getSelectedFile().getPath(); // Obtiene la ruta del archivo seleccionado y la guarda en la variable ruta
+            ruta = catalogo.getSelectedFile().getAbsolutePath(); // Obtiene la ruta completa del archivo seleccionado y la guarda en la variable ruta
             Image per = new ImageIcon(ruta).getImage(); // Crea un objeto Image a partir de la ruta del archivo
             ImageIcon perIco = new ImageIcon(per.getScaledInstance(jLabel5.getWidth(), jLabel5.getHeight(), Image.SCALE_SMOOTH)); // Crea un objeto ImageIcon a partir del objeto Image y lo escala al tamaño de la etiqueta 5
             jLabel5.setIcon(perIco); // Establece el objeto ImageIcon como el icono de la etiqueta 5
@@ -269,7 +278,7 @@ public class Frm_pestañas extends JFrame {
         contador4++; // Incrementa el contador4 en uno
         pastel1.setValue("per4", contador4); // actualizar el valor de per1 en el conjunto de datos
         gra1.repaint(); // repintar el panel gra1 para que se actualice la gráfica
-    }                                    
+    }
 
     private void graficarActionPerformed(java.awt.event.ActionEvent evt) { // Este método se ejecuta cuando se hace clic en el botón graficar                                                                                                            
         pastel1.setValue("per1", contador1); // Añade el valor del contador1 con la etiqueta "per1" al conjunto de datos

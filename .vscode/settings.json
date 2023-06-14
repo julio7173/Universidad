@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "Aplicacion-de-Animacion/Libraries/jcommon-1.0.23.jar",
+        "Aplicacion-de-Animacion/Libraries/jfreechart-1.0.19.jar"
+    ]
+}
