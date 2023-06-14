@@ -4,12 +4,15 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Aplicacion {
@@ -124,7 +127,7 @@ class CanvasFrame extends JFrame {
 
         // canvas derecha
         Canvas canvas = new Canvas();
-        canvas.setBackground(Color.RED);
+        canvas.setBackground(Color.WHITE);
 
         // union de ambos
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, canvas);
@@ -161,7 +164,7 @@ class CanvasFrame extends JFrame {
 
         // Agrega los Canvas al panel
         for (int i = 0; i < 29; i++) {
-            ImageCanvas canvas = new ImageCanvas(informacion); // Utiliza la clase ImageCanvas personalizada
+            Perfume canvas = new Perfume("circular", Perfume.randomColor());
             canvas.setPreferredSize(new Dimension(200, 200)); // Tamaño deseado de cada Canvas
 
             // Configura la restricción del GridBagLayout para mantener la forma cuadrada
@@ -199,20 +202,22 @@ class CanvasFrame extends JFrame {
         });
     }
 }
-class ImageCanvas extends Canvas {
+class Perfume extends Canvas implements Serializable {
     private BufferedImage image;
     private Color color;
     private JPanel padre;
+    private int clicks;
 
-    public ImageCanvas(JPanel padre) {
+    public Perfume(JPanel padre) {
         this.padre = padre;
-        color = randomColor();
+        this.color = randomColor();
 
         // Carga la imagen en un hilo separado
         Thread thread = new Thread(() -> {
             try {
                 image = javax.imageio.ImageIO.read(new java.io.File("ControlVoz/imagenes/perfumeCuadrado.png"));
-                SwingUtilities.invokeLater(this::repaint); // Actualiza el Canvas en el hilo de despacho de eventos de Swing
+                // cuando la imagen cargue repintamos
+                repaint();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -225,28 +230,70 @@ class ImageCanvas extends Canvas {
             }
         });
     }
-    public ImageCanvas(ImageCanvas copiar) {
+    public Perfume(Perfume copiar) {
         this.padre = copiar.padre;
         this.color = copiar.color;
         this.image = copiar.image;
+        this.clicks = copiar.clicks;
+    }
+    public Perfume(String forma, Color color){
+        this.clicks = 0;
+        this.padre = null;
+        forma = forma.toLowerCase();
+        this.color = color;
+        String ruta = "";
+        switch (forma) {
+            case "cuadrado":
+                ruta = "ControlVoz/imagenes/perfumeCuadrado.png";
+                break;
+            case "circular":
+                ruta = "ControlVoz/imagenes/perfumeCircular.png";
+                break;
+            case "largo":
+                ruta = "ControlVoz/imagenes/perfumeLargo.png";
+                break;
+            default:
+                System.out.println("El tipo de perfume no existe");
+                break;
+        }
+        if (!ruta.equals("")) {
+            // cargamos la imagen en un hilo separado
+            String finalRuta = ruta;
+            Thread thread = new Thread(() -> {
+                try {
+                    File archivo = new File(finalRuta);
+                    if (archivo.exists()) {
+                        image = ImageIO.read(archivo);
+                        repaint();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            thread.start();
+        }
+
     }
     private void mostrarColor(Color color) {
-        // Crea un JLabel y establece su tamaño y color de fondo
-        JLabel colorLabel = new JLabel();
-        colorLabel.setText(color.toString());
-        colorLabel.setOpaque(true);
-        colorLabel.setBackground(color);
+        if (padre != null) {
+            // Crea un JLabel y establece su tamaño y color de fondo
+            JLabel colorLabel = new JLabel();
+            colorLabel.setText(color.toString());
+            colorLabel.setOpaque(true);
+            colorLabel.setBackground(color);
 
-        padre.removeAll();
-        ImageCanvas nuevo = new ImageCanvas(this);
-        nuevo.setPreferredSize(new Dimension(250, 250));
-        padre.add(nuevo);
+            padre.removeAll();
+            Perfume nuevo = new Perfume(this);
+            nuevo.setPreferredSize(new Dimension(250, 250));
+            padre.add(nuevo);
 
-        // Vuelve a dibujar el panel para reflejar los cambios
-        padre.revalidate();
-        padre.repaint();
+            // Vuelve a dibujar el panel para reflejar los cambios
+            padre.revalidate();
+            padre.repaint();
+        }
     }
-    private Color randomColor() {
+    public static Color randomColor() {
         Random random = new Random();
         int r = random.nextInt(256);
         int g = random.nextInt(256);
@@ -266,6 +313,35 @@ class ImageCanvas extends Canvas {
             // Dibuja la imagen en el Canvas
             g.drawImage(image, x, y, canvasSize, canvasSize, this);
         }
+    }
+    public static void guardarPerfumes(ArrayList<Perfume> perfumes) {
+        try {
+            FileOutputStream archivo = new FileOutputStream("ControlVoz/datos/perfumes.txt");
+            ObjectOutputStream salida = new ObjectOutputStream(archivo);
+            salida.writeObject(perfumes);
+            salida.close();
+            archivo.close();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+        }
+    }
+    public static ArrayList<Perfume> leerPerfumes() {
+        ArrayList<Perfume> lista = new ArrayList<>();
+
+        try {
+            FileInputStream archivo = new FileInputStream("ControlVoz/datos/perfumes.txt");
+            ObjectInputStream entrada = new ObjectInputStream(archivo);
+            lista = (ArrayList<Perfume>) entrada.readObject();
+            entrada.close();
+            archivo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return lista;
     }
 }
 class EstadisticasPanel extends JPanel {
