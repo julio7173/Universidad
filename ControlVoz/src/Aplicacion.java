@@ -25,11 +25,15 @@ public class Aplicacion {
     }
 }
 class CanvasFrame extends JFrame {
+    private ArrayList<Perfume> perfumes;
     private JPanel canvasPanel;
     private JButton searchButton;
     JTextField textField;
 
     public CanvasFrame() {
+        // leemos los perfumes guardados en datos
+        perfumes = Perfume.leerPerfumes();
+        System.out.println(perfumes);
         setTitle("Crear");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1280, 720);
@@ -91,6 +95,7 @@ class CanvasFrame extends JFrame {
     }
 
     private void construir() {
+        Perfume[] nuevo = new Perfume[1];
 
         // botones
         JPanel leftPanel = new JPanel();
@@ -132,7 +137,11 @@ class CanvasFrame extends JFrame {
         envase.setOpaque(true);
         leftPanel.add(envase);
 
-        String[] opcionesEnvases = {"Cuadrado", "Circular", "Largo"};
+        String[] opcionesEnvases = {
+                "Cuadrado",
+                "Circular",
+                "Largo"
+        };
         JComboBox<String> envasesOpcion = new JComboBox<>(opcionesEnvases);
         leftPanel.add(envasesOpcion);
 
@@ -140,7 +149,11 @@ class CanvasFrame extends JFrame {
         animacionLabel.setOpaque(true);
         leftPanel.add(animacionLabel);
 
-        String[] opcionesAnimaciones = {"Aparecer", "Desvanecer", "Parpadear"};
+        String[] opcionesAnimaciones = {
+                "Aparecer",
+                "Desvanecer",
+                "Parpadear"
+        };
         JComboBox<String> animacionesOpcion = new JComboBox<>(opcionesAnimaciones);
         leftPanel.add(animacionesOpcion);
 
@@ -176,14 +189,22 @@ class CanvasFrame extends JFrame {
                 String envaseSeleccionado = (String) envasesOpcion.getSelectedItem();
                 String animacionSeleccionada = (String) animacionesOpcion.getSelectedItem();
                 Color color = obtenerColor(colorSeleccionado);
-                Perfume nuevo = new Perfume(envaseSeleccionado, color);
-                nuevo.setPreferredSize(new Dimension(canvas.getWidth(), canvas.getHeight()));
-                canvas.add(nuevo);
+                nuevo[0] = new Perfume(envaseSeleccionado, color);
+                nuevo[0].setPreferredSize(new Dimension(canvas.getWidth(), canvas.getHeight()));
+                canvas.add(nuevo[0]);
                 canvas.revalidate();
                 canvas.repaint();
-                System.out.println("Color seleccionado: " + colorSeleccionado);
-                System.out.println("Envase seleccionado: " + envaseSeleccionado);
-                System.out.println("Animación seleccionada: " + animacionSeleccionada);
+                //System.out.println(Perfume.leerPerfumes());
+            }
+        });
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (nuevo[0] != null) {
+                    perfumes.add(nuevo[0]);
+                    Perfume.guardarPerfumes(perfumes);
+                    System.out.println("agregando...");
+                }
             }
         });
     }
@@ -259,8 +280,9 @@ class CanvasFrame extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10); // Espacio entre componentes
 
         // Agrega los Canvas al panel
-        for (int i = 0; i < 29; i++) {
-            Perfume canvas = new Perfume("circular", Perfume.randomColor());
+        for (int i = 0; i < perfumes.size(); i++) {
+            Perfume canvas = perfumes.get(i);
+            canvas.loadImage();
             canvas.setPreferredSize(new Dimension(200, 200)); // Tamaño deseado de cada Canvas
 
             // Configura la restricción del GridBagLayout para mantener la forma cuadrada
@@ -299,38 +321,19 @@ class CanvasFrame extends JFrame {
     }
 }
 class Perfume extends Canvas implements Serializable {
-    private BufferedImage image;
+    // image no se guarda al momento de serializar
+    private transient BufferedImage image;
     private Color color;
     private JPanel padre;
     private int clicks;
+    private String ruta;
 
-    public Perfume(JPanel padre) {
-        this.padre = padre;
-        this.color = randomColor();
-
-        // Carga la imagen en un hilo separado
-        Thread thread = new Thread(() -> {
-            try {
-                image = javax.imageio.ImageIO.read(new java.io.File("ControlVoz/imagenes/perfumeCuadrado.png"));
-                // cuando la imagen cargue repintamos
-                repaint();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        thread.start();
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                mostrarColor(color);
-            }
-        });
-    }
     public Perfume(Perfume copiar) {
         this.padre = copiar.padre;
         this.color = copiar.color;
         this.image = copiar.image;
         this.clicks = copiar.clicks;
+        this.ruta = copiar.ruta;
     }
     public Perfume(String forma, Color color){
         this.clicks = 0;
@@ -352,7 +355,12 @@ class Perfume extends Canvas implements Serializable {
                 System.out.println("El tipo de perfume no existe");
                 break;
         }
-        if (!ruta.equals("")) {
+        this.ruta = ruta;
+        loadImage();
+    }
+
+    public void loadImage() {
+        if (this.ruta != null && !this.ruta.equals("")) {
             // cargamos la imagen en un hilo separado
             String finalRuta = ruta;
             Thread thread = new Thread(() -> {
@@ -369,8 +377,8 @@ class Perfume extends Canvas implements Serializable {
             });
             thread.start();
         }
-
     }
+
     private void mostrarColor(Color color) {
         if (padre != null) {
             // Crea un JLabel y establece su tamaño y color de fondo
