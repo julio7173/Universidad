@@ -1,3 +1,4 @@
+// libraria para mostrar estadísticas
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -8,6 +9,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -88,8 +91,8 @@ class CanvasFrame extends JFrame {
     }
 
     private void construir() {
-        // botones
 
+        // botones
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(Color.decode("#15191d"));
         leftPanel.setLayout(new GridLayout(0, 2, 0, 10)); // Usamos FlowLayout y establecemos los márgenes a 0
@@ -119,14 +122,20 @@ class CanvasFrame extends JFrame {
         JComboBox<String> animacionesOpcion = new JComboBox<>(opcionesAnimaciones);
         leftPanel.add(animacionesOpcion);
 
+        JButton showButton = new JButton("Mostrar");
+        leftPanel.add(showButton);
+
+        leftPanel.add(new JLabel());
+
         JButton saveButton = new JButton("Guardar");
         leftPanel.add(saveButton);
+
         for (int i = 0; i < 20 ; i++) {
             leftPanel.add(new JLabel());
         }
 
         // canvas derecha
-        Canvas canvas = new Canvas();
+        JPanel canvas = new JPanel();
         canvas.setBackground(Color.WHITE);
 
         // union de ambos
@@ -137,8 +146,41 @@ class CanvasFrame extends JFrame {
         splitPane.setDividerSize(0); // Establece el tamaño del divisor en cero
 
         canvasPanel.add(splitPane);
+        showButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                canvas.removeAll();
+                String colorSeleccionado = (String) coloresOpcion.getSelectedItem();
+                String envaseSeleccionado = (String) envasesOpcion.getSelectedItem();
+                String animacionSeleccionada = (String) animacionesOpcion.getSelectedItem();
+                Color color = obtenerColor(colorSeleccionado);
+                Perfume nuevo = new Perfume(envaseSeleccionado, color);
+                nuevo.setPreferredSize(new Dimension(canvas.getWidth(), canvas.getHeight()));
+                canvas.add(nuevo);
+                canvas.revalidate();
+                canvas.repaint();
+                System.out.println("Color seleccionado: " + colorSeleccionado);
+                System.out.println("Envase seleccionado: " + envaseSeleccionado);
+                System.out.println("Animación seleccionada: " + animacionSeleccionada);
+            }
+        });
     }
-
+    public static Color obtenerColor(String colorSeleccionado) {
+        switch (colorSeleccionado) {
+            case "rojo":
+                return Color.RED;
+            case "verde":
+                return Color.GREEN;
+            case "azul":
+                return Color.BLUE;
+            case "rosa":
+                return Color.PINK;
+            case "celeste":
+                return new Color(0, 191, 255); // Código de color RGB para celeste
+            default:
+                return Color.BLACK; // negro si no es ninguno de los anteriores
+        }
+    }
     private void imagenes() {
 
         JPanel lista = new JPanel();
