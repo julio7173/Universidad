@@ -134,7 +134,7 @@ public class ControlVoz extends ResultAdapter {
                 pedido = pedido.toLowerCase();
                 if (pedido.contains("add") || pedido.contains("agregar")) {
                     if(pedido.contains("cuadrado")) {
-                        gc.addFigura(new Cuadrado(pt, px, py, color, pz).setAnimacion(ani));
+                        gc.addFigura(new Cuadrado(pt, px, py, color, pz, "cuadrado").setAnimacion(ani));
                     }
                     if(pedido.contains("triangulo")) {
                         gc.addFigura(new Triangulo(pt, px, py, color, pz).setAnimacion(ani));
@@ -143,7 +143,7 @@ public class ControlVoz extends ResultAdapter {
                         gc.addFigura(new Circulo(pt, px, py, color, pz).setAnimacion(ani));
                     }
                     if(pedido.contains("rectangulo")) {
-                        gc.addFigura(new Rectangulo(altura, ancho, px, py, color, pz).setAnimacion(ani));
+                        gc.addFigura(new Rectangulo(altura, ancho, px, py, color, pz, "rectangulo").setAnimacion(ani));
                     }
                     /*if(pedido.contains("poligono")) {
                         int[] xPoints = {100, 200, 300, 250, 150};  // coordenadas X de los puntos del polígono
@@ -158,7 +158,7 @@ public class ControlVoz extends ResultAdapter {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
-                        gc.addFigura(new Imagen(imagen, px, py, pt).resize(125, 125).setAnimacion(ani));
+                        gc.addFigura(new Imagen(imagen, px, py, pt, "imagen2312312").resizes(125, 125).setAnimacion(ani));
                     }
                 }
                 pedido = "";

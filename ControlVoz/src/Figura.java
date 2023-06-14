@@ -1,9 +1,10 @@
+import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Figura implements Comparable<Figura>, Serializable {
+public abstract class Figura extends JPanel implements Comparable<Figura>, Serializable {
     protected Color color;
     protected int X;
     protected int Y;

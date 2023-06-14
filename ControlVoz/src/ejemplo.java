@@ -7,10 +7,10 @@ public class ejemplo extends ContenedorAbstracto {
     private Figura textoActual;
     public static void main(String[] args) {
         Contenedor gc = new Contenedor(new ejemplo(), 700, 500, 2, 20);
-        gc.addFigura("jhon", new Cuadrado(60, 67, 50, Color.CYAN, 1).setAnimacion(Animacion.DVD));
+        gc.addFigura("jhon", new Cuadrado(60, 67, 50, Color.CYAN, 1, "jhon").setAnimacion(Animacion.DVD));
         ArrayList<Figura> figuras = new ArrayList<>();
         figuras.add(new Triangulo(50, 50, 50, Color.ORANGE, 1));
-        figuras.add(new Cuadrado(50, 50, 100, Color.red, 1));
+        figuras.add(new Cuadrado(50, 50, 100, Color.red, 1, "jhon1"));
         gc.addFigura(new FiguraCompuesta(figuras).setAnimacion(Animacion.DVD).setAnimable(true));
         gc.addFigura(new Triangulo(50, 68, 128, Color.ORANGE, 1).setAnimacion(Animacion.DVD).setAnimable(true));
         gc.start();
