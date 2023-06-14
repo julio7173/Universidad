@@ -312,6 +312,14 @@ class CanvasFrame extends JFrame {
             perfume.setPreferredSize(new Dimension(200, 200)); // Tamaño deseado de cada Canvas
             perfume.setPadre(padre);
             perfume.loadImage();
+            perfume.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    perfume.aumentarClicks();
+                    System.out.println(perfume.getClicks());
+                    Perfume.guardarPerfumes(perfumes);
+                }
+            });
 
             // Configura la restricción del GridBagLayout para mantener la forma cuadrada
             gbc.gridx = i % 3; // Columna
@@ -518,10 +526,18 @@ class Perfume extends Canvas implements Serializable {
     public boolean isAnimable() {
         return !animando;
     }
+    public void aumentarClicks() {
+        clicks++;
+    }
+
+    public int getClicks() {
+        return clicks;
+    }
 }
 class EstadisticasPanel extends JPanel {
     public EstadisticasPanel() {
         setLayout(new BorderLayout());
+
 
         // Crear datos de ejemplo
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
