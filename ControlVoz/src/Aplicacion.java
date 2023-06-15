@@ -359,7 +359,7 @@ class CanvasFrame extends JFrame {
         });
     }
 }
-class Perfume extends Canvas implements Serializable {
+class Perfume extends JPanel implements Serializable {
     // image no se guarda al momento de serializar
     private transient BufferedImage image;
     private Color color;
@@ -378,6 +378,7 @@ class Perfume extends Canvas implements Serializable {
         this.ruta = copiar.ruta;
     }
     public Perfume(String forma, Color color, int size){
+
         this.originalSize = size;
         this.animando = false;
         this.clicks = 0;
@@ -438,6 +439,7 @@ class Perfume extends Canvas implements Serializable {
     public void paint(Graphics g) {
         super.paint(g);
         if (image != null) {
+
             // Calcula el tamaño y posición para mantener la forma cuadrada
             int canvasSize = Math.min(getWidth(), getHeight());
             int x = (getWidth() - canvasSize) / 2;
@@ -508,6 +510,7 @@ class Perfume extends Canvas implements Serializable {
                     } else {
                         // Detiene el temporizador una vez que se alcanzan los valores objetivo
                         timer.stop();
+                        animando = false;
                     }
                 }
             });
