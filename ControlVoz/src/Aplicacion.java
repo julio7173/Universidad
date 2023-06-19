@@ -285,6 +285,7 @@ class CanvasFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (nuevo[0] != null) {
+                    nuevo[0].stopAnimation();
                     perfumes.add(nuevo[0]);
                     Perfume.guardarPerfumes(perfumes);
                     System.out.println("agregando...");

@@ -15,7 +15,7 @@ public class Perfume extends JPanel implements Serializable {
     private JPanel padre;
     private int clicks;
     private String rutaImagen, rutaSprite;
-    private Thread animationThread;
+    private transient Thread animationThread;
     private boolean animando;
     private Dimension originalDimension;
     private String animacion;
