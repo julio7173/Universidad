@@ -11,6 +11,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Aplicacion {
     public static void main(String[] args) {
@@ -455,8 +457,7 @@ class CanvasFrame extends JFrame {
         busqueda.setLayout(new FlowLayout(FlowLayout.CENTER));
         busqueda.add(searchButton);
         busqueda.add(textField);
-
-        // panel de informacion
+            // panel de informacion
         JPanel informacion = new JPanel();
         informacion.setBackground(Color.decode("#15191d"));
         informacion.setLayout(new BoxLayout(informacion, BoxLayout.Y_AXIS));
@@ -611,6 +612,93 @@ class CanvasFrame extends JFrame {
         canvasPanel.add(listaInformacion, BorderLayout.CENTER);
         canvasPanel.revalidate();
         canvasPanel.repaint();
+        textField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    dibujado.removeAll();
+                    String input = textField.getText();
+                    Pattern pattern = Pattern.compile(input);
+                    int i = 0;
+                    for (Perfume perfume : perfumes) {
+                        Matcher matcher = pattern.matcher(perfume.getNombre());
+                        if (matcher.find()) {
+                            JPanel padre = new JPanel();
+                            padre.setBackground(Color.WHITE);
+
+                            // cargamos la imagen, al serializar se guardo la ruta de la imagen, no se puede
+                            // serializar BufferedImage
+                            perfume.setPadre(padre);
+                            perfume.loadImage();
+                            perfume.addMouseListener(new MouseAdapter() {
+                                @Override
+                                public void mouseClicked(MouseEvent e) {
+                                    seleccionado = perfume;
+                                    dibujado.removeAll();
+                                    perfume.aumentarClicks();
+                                    System.out.println(perfume.getClicks());
+                                    Perfume copia = new Perfume(perfume);
+                                    copia.setPreferredSize(new Dimension(dibujado.getWidth(), dibujado.getHeight()));
+                                    copia.setPadre(dibujado);
+                                    animacionLabel.setText("Animacion: " + perfume.getAnimacion());
+                                    colorLabel.setText("Color: " + obtenerNombreColor(perfume.getColor()));
+                                    contenidoLabel.setText("Contenido: " + perfume.getMililitros() + " ml");
+                                    nombreLabel.setText("Nombre: " + perfume.getNombre());
+                                    detalles.repaint();
+                                    dibujado.addMouseListener(new MouseAdapter() {
+                                        @Override
+                                        public void mouseClicked(MouseEvent e) {
+                                            if (copia.isAnimable()){
+                                                copia.play();
+                                            } else {
+                                                copia.stopAnimation();
+                                            }
+
+                                        }
+                                    });
+                                    copia.addMouseListener(new MouseAdapter() {
+                                        @Override
+                                        public void mouseClicked(MouseEvent e) {
+                                            dibujado.dispatchEvent(e);
+                                        }
+                                    });
+                                    dibujado.add(copia);
+
+                                    Perfume.guardarPerfumes(perfumes);
+                                    dibujado.revalidate();
+                                    dibujado.repaint();
+                                }
+                            });
+
+                            // Configura la restricción del GridBagLayout para mantener la forma cuadrada
+                            gbc.gridx = i % 3; // Columna
+                            gbc.gridy = i / 3; // Fila
+                            gbc.weightx = 1.0;
+                            gbc.weighty = 1.0;
+                            gbc.fill = GridBagConstraints.BOTH;
+
+                            padre.setPreferredSize(new Dimension(200, 200));
+                            perfume.setPreferredSize(new Dimension(200, 200));
+                            padre.add(perfume);
+                            lista.add(padre, gbc);
+                            i++;
+                        }
+                    }
+                    dibujado.repaint();
+                    lista.repaint();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+
+        });
     }
 
     private void estadisticas() {
