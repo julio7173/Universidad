@@ -17,6 +17,7 @@ class CanvasFrame extends JFrame {
     private JPanel canvasPanel;
     private JButton searchButton;
     JTextField textField;
+    private Perfume seleccionado;
 
     public CanvasFrame() {
         // leemos los perfumes guardados en datos
@@ -62,7 +63,7 @@ class CanvasFrame extends JFrame {
 
         menuItemBuscar.addActionListener(e -> {
             canvasPanel.removeAll();
-            imagenes();
+            buscar();
             canvasPanel.revalidate();
             canvasPanel.repaint();
         });
@@ -79,10 +80,11 @@ class CanvasFrame extends JFrame {
         //scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         canvasPanel.setLayout(new BorderLayout());
         getContentPane().add(canvasPanel);
-        imagenes();
+        buscar();
     }
 
     private void construir() {
+        canvasPanel.removeAll();
         Perfume[] nuevo = new Perfume[1];
 
         // botones
@@ -289,6 +291,10 @@ class CanvasFrame extends JFrame {
                     perfumes.add(nuevo[0]);
                     Perfume.guardarPerfumes(perfumes);
                     System.out.println("agregando...");
+                    nuevo[0] = null;
+                    canvas.removeAll();
+                    canvas.revalidate();
+                    canvas.repaint();
                 }
             }
         });
@@ -306,6 +312,177 @@ class CanvasFrame extends JFrame {
                 }
             }
         });
+        canvasPanel.revalidate();
+        canvasPanel.repaint();
+    }
+    private void buscar() {
+        canvasPanel.removeAll();
+        searchButton.setHorizontalAlignment(SwingConstants.CENTER);
+        textField.setHorizontalAlignment(SwingConstants.LEFT);
+
+        // panel de texto superior
+        JPanel busqueda = new JPanel();
+        busqueda.setBackground(Color.decode("#15191d"));
+        busqueda.setLayout(new FlowLayout(FlowLayout.CENTER));
+        busqueda.add(searchButton);
+        busqueda.add(textField);
+
+        // panel de informacion
+        JPanel informacion = new JPanel();
+        informacion.setBackground(Color.decode("#15191d"));
+        informacion.setLayout(new BoxLayout(informacion, BoxLayout.Y_AXIS));
+
+        JPanel dibujado = new JPanel() {};
+
+        dibujado.setBackground(Color.WHITE);
+        informacion.add(dibujado);
+
+        JPanel detalles = new JPanel();
+        detalles.setBackground(Color.decode("#15191d"));
+        detalles.setLayout(new GridLayout(0, 1, 0, 2));
+
+        JLabel nombreLabel = new JLabel("Nombre: estas1231");
+        nombreLabel.setForeground(Color.WHITE);
+        nombreLabel.setBackground(new Color(255, 255, 255, 25));
+        nombreLabel.setOpaque(true);
+        detalles.add(nombreLabel);
+
+        JLabel colorLabel = new JLabel("color: rojo");
+        colorLabel.setForeground(Color.WHITE);
+        colorLabel.setBackground(new Color(255, 255, 255, 25));
+        colorLabel.setOpaque(true);
+        detalles.add(colorLabel);
+
+        JLabel animacionLabel = new JLabel("animacion: sprites");
+        animacionLabel.setForeground(Color.WHITE);
+        animacionLabel.setBackground(new Color(255, 255, 255, 25));
+        animacionLabel.setOpaque(true);
+        detalles.add(animacionLabel);
+
+        JLabel contenidoLabel = new JLabel("contenido: 123 ml");
+        contenidoLabel.setForeground(Color.WHITE);
+        contenidoLabel.setBackground(new Color(255, 255, 255, 25));
+        contenidoLabel.setOpaque(true);
+        detalles.add(contenidoLabel);
+
+        JButton eliminarButton = new JButton("Eliminar");
+        eliminarButton.setForeground(Color.WHITE);
+        eliminarButton.setBackground(new Color(119, 17, 17));
+        eliminarButton.setFocusable(false);
+        eliminarButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (seleccionado!= null) {
+                    dibujado.removeAll();
+                    dibujado.revalidate();
+                    dibujado.repaint();
+                    perfumes.remove(seleccionado);
+                    Perfume.guardarPerfumes(perfumes);
+                    seleccionado = null;
+                    buscar();
+
+                }
+            }
+        });
+
+        detalles.add(eliminarButton);
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, dibujado, detalles);
+        splitPane.setDividerLocation(0.5); // Establecer la ubicación del divisor al 50%
+        splitPane.setEnabled(false);
+        splitPane.setResizeWeight(0.75);
+        splitPane.setDividerSize(0); // Establece el tamaño del divisor en cero
+
+        informacion.add(splitPane);
+
+
+        // lista para buscados
+        JPanel lista = new JPanel();
+        lista.setBackground(Color.WHITE);
+        lista.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10); // Espacio entre componentes
+
+        // Agrega los Canvas al panel
+        for (int i = 0; i < perfumes.size(); i++) {
+            JPanel padre = new JPanel();
+            padre.setBackground(Color.WHITE);
+            Perfume perfume = perfumes.get(i);
+
+            // cargamos la imagen, al serializar se guardo la ruta de la imagen, no se puede
+            // serializar BufferedImage
+            perfume.setPadre(padre);
+            perfume.loadImage();
+            perfume.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    seleccionado = perfume;
+                    dibujado.removeAll();
+                    perfume.aumentarClicks();
+                    Perfume copia = new Perfume(perfume);
+                    copia.setPreferredSize(new Dimension(dibujado.getWidth(), dibujado.getHeight()));
+                    copia.setPadre(dibujado);
+                    animacionLabel.setText("Animacion: " + perfume.getAnimacion());
+                    colorLabel.setText("Color: " + obtenerNombreColor(perfume.getColor()));
+                    detalles.repaint();
+                    dibujado.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (copia.isAnimable()){
+                                copia.play();
+                            } else {
+                                copia.stopAnimation();
+                            }
+
+                        }
+                    });
+                    copia.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            dibujado.dispatchEvent(e);
+                        }
+                    });
+                    dibujado.add(copia);
+
+                    Perfume.guardarPerfumes(perfumes);
+                    dibujado.revalidate();
+                    dibujado.repaint();
+                }
+            });
+
+            // Configura la restricción del GridBagLayout para mantener la forma cuadrada
+            gbc.gridx = i % 3; // Columna
+            gbc.gridy = i / 3; // Fila
+            gbc.weightx = 1.0;
+            gbc.weighty = 1.0;
+            gbc.fill = GridBagConstraints.BOTH;
+
+            padre.setPreferredSize(new Dimension(200, 200));
+            perfume.setPreferredSize(new Dimension(200, 200));
+            padre.add(perfume);
+            lista.add(padre, gbc);
+            //perfume.startAnimation();
+        }
+
+
+        JScrollPane scrollPane = new JScrollPane(lista);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(64);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(64);
+        JSplitPane listaInformacion = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, informacion, scrollPane);
+        listaInformacion.setDividerLocation(450);
+        listaInformacion.setEnabled(false);
+        listaInformacion.setResizeWeight(0);
+        listaInformacion.setDividerSize(0);
+
+        canvasPanel.add(busqueda, BorderLayout.NORTH);
+        canvasPanel.add(listaInformacion, BorderLayout.CENTER);
+        canvasPanel.revalidate();
+        canvasPanel.repaint();
+    }
+
+    private void estadisticas() {
+        canvasPanel.add(new Estadistica());
     }
     public static Color obtenerColor(String colorSeleccionado) {
         switch (colorSeleccionado) {
@@ -355,78 +532,54 @@ class CanvasFrame extends JFrame {
                 return Color.BLACK; // negro si no es ninguno de los anteriores
         }
     }
-    private void imagenes() {
-
-        searchButton.setHorizontalAlignment(SwingConstants.CENTER);
-        textField.setHorizontalAlignment(SwingConstants.LEFT);
-
-        JPanel busqueda = new JPanel();
-        busqueda.setBackground(Color.decode("#15191d"));
-        busqueda.setLayout(new FlowLayout(FlowLayout.CENTER));
-        busqueda.add(searchButton);
-        busqueda.add(textField);
-
-        JPanel informacion = new JPanel();
-        informacion.setBackground(Color.decode("#15191d"));
-
-        // lista para buscados
-        JPanel lista = new JPanel();
-        lista.setBackground(Color.WHITE);
-        lista.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Espacio entre componentes
-
-        // Agrega los Canvas al panel
-        for (int i = 0; i < perfumes.size(); i++) {
-            JPanel padre = new JPanel();
-            padre.setBackground(Color.WHITE);
-            Perfume perfume = perfumes.get(i);
-            // cargamos la imagen, al serializar se guardo la ruta de la imagen, no se puede
-            // serializar BufferedImage
-            perfume.setPreferredSize(new Dimension(200, 200)); // Tamaño deseado de cada Canvas
-            perfume.setPadre(padre);
-            perfume.loadImage();
-            perfume.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    perfume.aumentarClicks();
-                    System.out.println(perfume.getClicks());
-                    Perfume.guardarPerfumes(perfumes);
-                }
-            });
-
-            // Configura la restricción del GridBagLayout para mantener la forma cuadrada
-            gbc.gridx = i % 3; // Columna
-            gbc.gridy = i / 3; // Fila
-            gbc.weightx = 1.0;
-            gbc.weighty = 1.0;
-            gbc.fill = GridBagConstraints.BOTH;
-
-            padre.setPreferredSize(new Dimension(200, 200));
-            padre.add(perfume);
-            lista.add(padre, gbc);
-            //perfume.startAnimation();
+    public static String obtenerNombreColor(Color color) {
+        if (color.equals(Color.RED)) {
+            return "rojo";
+        } else if (color.equals(Color.GREEN)) {
+            return "verde";
+        } else if (color.equals(Color.BLUE)) {
+            return "azul";
+        } else if (color.equals(Color.PINK)) {
+            return "rosa";
+        } else if (color.equals(new Color(0, 191, 255))) {
+            return "celeste";
+        } else if (color.equals(Color.YELLOW)) {
+            return "amarillo";
+        } else if (color.equals(Color.ORANGE)) {
+            return "naranja";
+        } else if (color.equals(new Color(148, 0, 211))) {
+            return "violeta";
+        } else if (color.equals(Color.GRAY)) {
+            return "gris";
+        } else if (color.equals(new Color(139, 69, 19))) {
+            return "marrón";
+        } else if (color.equals(new Color(64, 224, 208))) {
+            return "turquesa";
+        } else if (color.equals(Color.BLACK)) {
+            return "negro";
+        } else if (color.equals(Color.WHITE)) {
+            return "blanco";
+        } else if (color.equals(new Color(128, 0, 128))) {
+            return "morado";
+        } else if (color.equals(new Color(255, 215, 0))) {
+            return "dorado";
+        } else if (color.equals(new Color(192, 192, 192))) {
+            return "plateado";
+        } else if (color.equals(new Color(0, 255, 255))) {
+            return "cian";
+        } else if (color.equals(new Color(250, 128, 114))) {
+            return "salmon";
+        } else if (color.equals(new Color(50, 205, 50))) {
+            return "verde lima";
+        } else if (color.equals(new Color(169, 169, 169))) {
+            return "gris oscuro";
+        } else if (color.equals(new Color(0, 0, 128))) {
+            return "azul marino";
+        } else {
+            return "desconocido";
         }
-
-
-        JScrollPane scrollPane = new JScrollPane(lista);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(64);
-        scrollPane.getHorizontalScrollBar().setUnitIncrement(64);
-        JSplitPane listaInformacion = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, informacion, scrollPane);
-        listaInformacion.setDividerLocation(0.25);
-        listaInformacion.setEnabled(false);
-        listaInformacion.setResizeWeight(0.8);
-        listaInformacion.setDividerSize(0);
-
-        canvasPanel.add(busqueda, BorderLayout.NORTH);
-        canvasPanel.add(listaInformacion, BorderLayout.CENTER);
-
     }
 
-    private void estadisticas() {
-        canvasPanel.add(new Estadistica());
-    }
 
     public void run() {
         SwingUtilities.invokeLater(() -> {

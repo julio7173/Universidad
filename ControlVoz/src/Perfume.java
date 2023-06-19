@@ -142,7 +142,8 @@ public class Perfume extends JPanel implements Serializable {
             g.setColor(padre.getBackground());
             g.fillRect(0,0, getWidth(), getHeight());
 
-            g.drawImage(spriteSheet, (padre.getWidth()/2)-(canvasSize/2), 0, (padre.getWidth()/2)+(canvasSize/2), canvasSize,
+            g.drawImage(spriteSheet, (padre.getWidth()/2)-(canvasSize/2), (padre.getHeight()/2)-(canvasSize/2),
+                    (padre.getWidth()/2)+(canvasSize/2), (padre.getHeight()/2)+(canvasSize/2),
                     currentColumn * spriteAncho, currentRow * spriteAltura,
                     (currentColumn + 1) * spriteAncho, (currentRow + 1) * spriteAltura, null);
         } else if (image != null) {
@@ -195,10 +196,11 @@ public class Perfume extends JPanel implements Serializable {
                 case "aparecer":
                     startAnimation(duracion);
                 case "desvanecer":
-                    System.out.println("des");
                     disappearAnimation(duracion);
                 case "secuencia":
-                    cargarSprite("ControlVoz/imagenes/pikachu.png", 10, 14, 1, 61);
+                    if (spriteSheet == null) {
+                        cargarSprite("ControlVoz/imagenes/pikachu.png", 10, 14, 1, 61);
+                    }
                     spriteAnimation(duracion);
             }
         }
@@ -314,7 +316,6 @@ public class Perfume extends JPanel implements Serializable {
             spriteAnimando = true;
             originalDimension = new Dimension(getWidth(), getHeight());
             animando = true;
-            long startTime = System.currentTimeMillis();
             animationThread = new Thread(() -> {
                 while (spriteFrameActual < spriteFrameTotal) {
                     nextFrame();
@@ -324,12 +325,15 @@ public class Perfume extends JPanel implements Serializable {
                         Thread.currentThread().interrupt();
                         animando = false;
                         spriteAnimando = false;
+                        spriteFrameActual = spriteInicio;
+                        currentFrame = spriteInicio;
                         return;
                     }
                 }
-                System.out.println(System.currentTimeMillis() - startTime);
                 animando = false;
                 spriteAnimando = false;
+                spriteFrameActual = spriteInicio;
+                currentFrame = spriteInicio;
                 repaint();
             });
             animationThread.start();
@@ -349,11 +353,38 @@ public class Perfume extends JPanel implements Serializable {
             animationThread.interrupt();
             animationThread = null;
             animando = false;
+            spriteAnimando = false;
             setSize(originalDimension);
             setLocation(0, 0);
             repaint();
         }
     }
+    // contructor para crea una copia
+    public Perfume(Perfume copia) {
+        this.image = copia.image;
+        this.spriteSheet = copia.spriteSheet;
+        this.color = copia.color;
+        this.padre = copia.padre;
+        this.clicks = copia.clicks;
+        this.rutaImagen = copia.rutaImagen;
+        this.rutaSprite = copia.rutaSprite;
+        this.animationThread = copia.animationThread;
+        this.animando = copia.animando;
+        this.originalDimension = copia.originalDimension;
+        this.animacion = copia.animacion;
+        this.duracion = copia.duracion;
+        this.columnas = copia.columnas;
+        this.filas = copia.filas;
+        this.currentFrame = copia.currentFrame;
+        this.spriteAltura = copia.spriteAltura;
+        this.spriteAncho = copia.spriteAncho;
+        this.spriteInicio = copia.spriteInicio;
+        this.spriteFinal = copia.spriteFinal;
+        this.spriteFrameTotal = copia.spriteFrameTotal;
+        this.spriteFrameActual = copia.spriteFrameActual;
+        this.spriteAnimando = copia.spriteAnimando;
+    }
+
     public boolean isAnimable() {
         return !animando;
     }
@@ -371,5 +402,13 @@ public class Perfume extends JPanel implements Serializable {
 
     public void setAnimacion(String animacion) {
         this.animacion = animacion.toLowerCase();
+    }
+
+    public String getAnimacion() {
+        return animacion;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }
