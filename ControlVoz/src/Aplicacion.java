@@ -290,7 +290,7 @@ class CanvasFrame extends JFrame {
             }
         });
 
-        // guardamos el nuevo perfume, si se mostro con el boton mostrar
+        // guardamos el nuevo perfume, si se uso el boton de mostrar
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
