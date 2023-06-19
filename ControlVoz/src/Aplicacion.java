@@ -1,20 +1,10 @@
 // libraria para mostrar estadísticas
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
 
 public class Aplicacion {
     public static void main(String[] args) {
@@ -150,7 +140,7 @@ class CanvasFrame extends JFrame {
         String[] opcionesAnimaciones = {
                 "Aparecer",
                 "Desvanecer",
-                "Parpadear"
+                "Secuencia"
         };
         JComboBox<String> animacionesOpcion = new JComboBox<>(opcionesAnimaciones);
         leftPanel.add(animacionesOpcion);
@@ -278,7 +268,7 @@ class CanvasFrame extends JFrame {
                 String envaseSeleccionado = (String) envasesOpcion.getSelectedItem();
                 String animacionSeleccionada = (String) animacionesOpcion.getSelectedItem();
                 Color color = obtenerColor(colorSeleccionado);
-                nuevo[0] = new Perfume(envaseSeleccionado, color, Math.min(canvas.getWidth(), canvas.getHeight()));
+                nuevo[0] = new Perfume(envaseSeleccionado, color, Integer.parseInt(tiempoTexto.getText()), animacionSeleccionada);
                 nuevo[0].setPreferredSize(new Dimension(canvas.getWidth(), canvas.getHeight()));
                 nuevo[0].setPadre(canvas);
                 canvas.add(nuevo[0]);
@@ -306,7 +296,9 @@ class CanvasFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (nuevo[0] != null) {
                     if (nuevo[0].isAnimable()) {
-                        nuevo[0].startAnimation(Integer.parseInt(tiempoTexto.getText()));
+                        nuevo[0].setDuracion(Integer.parseInt(tiempoTexto.getText()));
+                        nuevo[0].setAnimacion((String) animacionesOpcion.getSelectedItem());
+                        nuevo[0].play();
                     } else {
                         nuevo[0].stopAnimation();
                     }
@@ -432,7 +424,7 @@ class CanvasFrame extends JFrame {
     }
 
     private void estadisticas() {
-        canvasPanel.add(new EstadisticasPanel());
+        canvasPanel.add(new Estadistica());
     }
 
     public void run() {
@@ -440,268 +432,4 @@ class CanvasFrame extends JFrame {
             setVisible(true);
         });
     }
-}
-class Perfume extends JPanel implements Serializable {
-    // image no se guarda al momento de serializar
-    private transient BufferedImage image;
-    private Color color;
-    private JPanel padre;
-    private int clicks;
-    private String ruta;
-    private Timer timer;
-    private boolean animando;
-    private int originalSize;
-    private Dimension originalDimension;
-
-    public Perfume(Perfume copiar) {
-        this.padre = copiar.padre;
-        this.color = copiar.color;
-        this.image = copiar.image;
-        this.clicks = copiar.clicks;
-        this.ruta = copiar.ruta;
-    }
-    public Perfume(String forma, Color color, int size){
-
-        this.originalSize = size;
-        this.animando = false;
-        this.clicks = 0;
-        this.padre = null;
-        forma = forma.toLowerCase();
-        this.color = color;
-        String ruta = "";
-        switch (forma) {
-            case "cuadrado":
-                ruta = "ControlVoz/imagenes/perfumeCuadrado.png";
-                break;
-            case "circular":
-                ruta = "ControlVoz/imagenes/perfumeCircular.png";
-                break;
-            case "largo":
-                ruta = "ControlVoz/imagenes/perfumeLargo.png";
-                break;
-            default:
-                System.out.println("El tipo de perfume no existe");
-                break;
-        }
-        this.ruta = ruta;
-        loadImage();
-    }
-
-    public void setPadre(JPanel padre) {
-        this.padre = padre;
-    }
-
-    public void loadImage() {
-        if (this.ruta != null && !this.ruta.equals("")) {
-            // cargamos la imagen en un hilo separado
-            String finalRuta = ruta;
-            Thread thread = new Thread(() -> {
-                try {
-                    File archivo = new File(finalRuta);
-                    if (archivo.exists()) {
-                        image = ImageIO.read(archivo);
-                        repaint();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-            thread.start();
-        }
-    }
-
-    public static Color randomColor() {
-        Random random = new Random();
-        int r = random.nextInt(256);
-        int g = random.nextInt(256);
-        int b = random.nextInt(256);
-        return new Color(r, g, b);
-    }
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        if (image != null) {
-
-            // Calcula el tamaño y posición para mantener la forma cuadrada
-            int canvasSize = Math.min(getWidth(), getHeight());
-            int x = (getWidth() - canvasSize) / 2;
-            int y = (getHeight() - canvasSize) / 2;
-            g.setColor(padre.getBackground());
-            g.fillRect(0,0, getWidth(), getHeight());
-            g.setColor(color);
-            g.fillRect(x, y, canvasSize, canvasSize);
-            // Dibuja la imagen en el panel
-            g.drawImage(image, x, y, canvasSize, canvasSize, this);
-        }
-    }
-    public static void guardarPerfumes(ArrayList<Perfume> perfumes) {
-        try {
-            FileOutputStream archivo = new FileOutputStream("ControlVoz/datos/perfumes.txt");
-            ObjectOutputStream salida = new ObjectOutputStream(archivo);
-            salida.writeObject(perfumes);
-            salida.close();
-            archivo.close();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static ArrayList<Perfume> leerPerfumes() {
-        ArrayList<Perfume> lista = new ArrayList<>();
-
-        try {
-            FileInputStream archivo = new FileInputStream("ControlVoz/datos/perfumes.txt");
-            ObjectInputStream entrada = new ObjectInputStream(archivo);
-            lista = (ArrayList<Perfume>) entrada.readObject();
-            entrada.close();
-            archivo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return lista;
-    }
-    public void startAnimation(int animationDuration) {
-        if (!animando) {
-            originalDimension = new Dimension(getWidth(), getHeight());
-            animando = true;
-            // Crea el temporizador para la animación
-            int totalFrames = animationDuration / 16; // Aproximadamente 60 cuadros por segundo
-            int targetSize = Math.min(padre.getWidth(), padre.getHeight());
-
-            int centerX = padre.getWidth() / 2; // Coordenada X del centro del panel padre
-            int centerY = padre.getHeight() / 2; // Coordenada Y del centro del panel padre
-
-            long startTime = System.currentTimeMillis(); // Obtiene el tiempo de inicio de la animación
-            timer = new Timer(16, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    long elapsedTime = System.currentTimeMillis() - startTime; // Calcula el tiempo transcurrido
-
-                    if (elapsedTime < animationDuration) {
-                        float progress = (float) elapsedTime / animationDuration; // Calcula el progreso de la animación
-                        int newSize = (int) (progress * targetSize);
-                        int newWidth = newSize;
-                        int newHeight = newSize;
-
-                        // Calcula las coordenadas del origen del componente animado
-                        int startX = centerX - (newWidth / 2);
-                        int startY = centerY - (newHeight / 2);
-
-                        // Actualiza el tamaño y la ubicación del componente en cada cuadro
-                        setSize(new Dimension(newWidth, newHeight));
-                        setLocation(startX, startY);
-
-                        // Redibuja el Canvas para reflejar los cambios
-                        repaint();
-                    } else {
-                        // Detiene el temporizador una vez que se alcanza la duración total
-                        timer.stop();
-                        animando = false;
-                    }
-                }
-            });
-
-            // Inicia la animación
-            timer.start();
-        }
-    }
-    public void disappearAnimation(int animationDuration) {
-        if (!animando) {
-            animando = true;
-            // Crea el temporizador para la animación
-            int totalFrames = animationDuration / 16; // Aproximadamente 60 cuadros por segundo
-            int targetSize = 0;
-
-            int centerX = padre.getWidth() / 2; // Coordenada X del centro del panel padre
-            int centerY = padre.getHeight() / 2; // Coordenada Y del centro del panel padre
-
-            long startTime = System.currentTimeMillis(); // Obtiene el tiempo de inicio de la animación
-            timer = new Timer(16, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    long elapsedTime = System.currentTimeMillis() - startTime; // Calcula el tiempo transcurrido
-
-                    if (elapsedTime < animationDuration) {
-                        float progress = 1 - ((float) elapsedTime / animationDuration); // Calcula el progreso de la animación (decreciente)
-                        int newSize = (int) (progress * targetSize);
-                        int newWidth = newSize;
-                        int newHeight = newSize;
-
-                        // Calcula las coordenadas del origen del componente animado
-                        int startX = centerX - (newWidth / 2);
-                        int startY = centerY - (newHeight / 2);
-
-                        // Actualiza el tamaño y la ubicación del componente en cada cuadro
-                        setSize(new Dimension(newWidth, newHeight));
-                        setLocation(startX, startY);
-
-                        // Redibuja el Canvas para reflejar los cambios
-                        repaint();
-                    } else {
-                        // Detiene el temporizador una vez que se alcanza la duración total
-                        timer.stop();
-                        animando = false;
-                    }
-                }
-            });
-
-            // Inicia la animación
-            timer.start();
-        }
-    }
-
-    public void stopAnimation() {
-        if (timer != null && timer.isRunning()) {
-
-            timer.stop();
-            animando = false;
-            setSize(originalDimension);
-            setLocation(0, 0);
-        }
-    }
-    public boolean isAnimable() {
-        return !animando;
-    }
-    public void aumentarClicks() {
-        clicks++;
-    }
-
-    public int getClicks() {
-        return clicks;
-    }
-}
-class EstadisticasPanel extends JPanel {
-    public EstadisticasPanel() {
-        setLayout(new BorderLayout());
-
-
-        // Crear datos de ejemplo
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.setValue(120, "Categoría 1", "Elemento 1");
-        dataset.setValue(240, "Categoría 1", "Elemento 2");
-        dataset.setValue(180, "Categoría 1", "Elemento 3");
-        dataset.setValue(90, "Categoría 2", "Elemento 1");
-        dataset.setValue(160, "Categoría 2", "Elemento 2");
-        dataset.setValue(210, "Categoría 2", "Elemento 3");
-
-        // Crear gráfico de barras
-        JFreeChart chart = ChartFactory.createBarChart(
-                "Animaciones Usadas",
-                "Categorías",
-                "Valores",
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-
-        // Crear panel de gráfico
-        ChartPanel chartPanel = new ChartPanel(chart);
-        add(chartPanel, BorderLayout.CENTER);
-    }
-
 }
