@@ -6,26 +6,115 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Estadistica extends JPanel {
-    public Estadistica() {
-        setLayout(new BorderLayout());
+    public Estadistica(ArrayList<Perfume> perfumes) {
+        setLayout(new GridLayout(2, 2));
 
+        // Calcular las frecuencias de cada atributo
+        Map<String, Integer> frecuenciaAnimaciones = calcularFrecuencias(perfumes, "animacion");
+        Map<String, Integer> frecuenciaColores = calcularFrecuencias(perfumes, "color");
+        Map<String, Integer> frecuenciaFormas = calcularFrecuencias(perfumes, "forma");
+        Map<Integer, Integer> frecuenciaClicks = calcularFrecuenciasNumericas(perfumes, "clicks");
 
-        // Crear datos de ejemplo
+        // Crear datasets con las frecuencias
+        DefaultCategoryDataset datasetAnimaciones = crearDataset(frecuenciaAnimaciones);
+        DefaultCategoryDataset datasetColores = crearDataset(frecuenciaColores);
+        DefaultCategoryDataset datasetFormas = crearDataset(frecuenciaFormas);
+        DefaultCategoryDataset datasetClicks = crearDatasetNumericos(frecuenciaClicks);
+
+        // Crear gráficos de barras
+        JFreeChart chartAnimaciones = crearChart(datasetAnimaciones, "Animaciones Usadas", "Animaciones", "Cantidad");
+        JFreeChart chartColores = crearChart(datasetColores, "Colores Usados", "Colores", "Cantidad");
+        JFreeChart chartFormas = crearChart(datasetFormas, "Formas Usadas", "Formas", "Cantidad");
+        JFreeChart chartClicks = crearChart(datasetClicks, "Clicks", "Cantidad", "Cantidad");
+
+        // Crear paneles de gráficos
+        ChartPanel chartPanelAnimaciones = new ChartPanel(chartAnimaciones);
+        ChartPanel chartPanelColores = new ChartPanel(chartColores);
+        ChartPanel chartPanelFormas = new ChartPanel(chartFormas);
+        ChartPanel chartPanelClicks = new ChartPanel(chartClicks);
+
+        // Agregar paneles de gráficos al panel Estadistica
+        add(chartPanelAnimaciones);
+        add(chartPanelColores);
+        add(chartPanelFormas);
+        add(chartPanelClicks);
+    }
+
+    // Calcular las frecuencias de un atributo en la lista de perfumes
+    private Map<String, Integer> calcularFrecuencias(ArrayList<Perfume> perfumes, String atributo) {
+        Map<String, Integer> frecuencias = new HashMap<>();
+
+        for (Perfume perfume : perfumes) {
+            String valor = null;
+
+            switch (atributo) {
+                case "animacion":
+                    valor = perfume.getAnimacion();
+                    break;
+                case "color":
+                    valor = obtenerNombreColor(perfume.getColor());
+                    break;
+                case "forma":
+                    valor = perfume.getForma();
+                    break;
+            }
+
+            frecuencias.put(valor, frecuencias.getOrDefault(valor, 0) + 1);
+        }
+
+        return frecuencias;
+    }
+
+    // calculamos los clicks de perfumes
+    private Map<Integer, Integer> calcularFrecuenciasNumericas(ArrayList<Perfume> perfumes, String atributo) {
+        Map<Integer, Integer> frecuencias = new HashMap<>();
+
+        for (Perfume perfume : perfumes) {
+            int valor = 0;
+
+            if (atributo.equals("clicks")) {
+                valor = perfume.getClicks();
+            }
+
+            frecuencias.put(valor, frecuencias.getOrDefault(valor, 0) + 1);
+        }
+
+        return frecuencias;
+    }
+
+    // Crear el dataset para un gráfico de barras
+    private DefaultCategoryDataset crearDataset(Map<String, Integer> frecuencias) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        dataset.setValue(120, "Categoría 1", "Elemento 1");
-        dataset.setValue(240, "Categoría 1", "Elemento 2");
-        dataset.setValue(180, "Categoría 1", "Elemento 3");
-        dataset.setValue(90, "Categoría 2", "Elemento 1");
-        dataset.setValue(160, "Categoría 2", "Elemento 2");
-        dataset.setValue(210, "Categoría 2", "Elemento 3");
 
-        // Crear gráfico de barras
+        for (Map.Entry<String, Integer> entry : frecuencias.entrySet()) {
+            dataset.setValue(entry.getValue(), "Cantidad", entry.getKey());
+        }
+
+        return dataset;
+    }
+
+    // Crear el dataset para un gráfico de barras con valores numéricos
+    private DefaultCategoryDataset crearDatasetNumericos(Map<Integer, Integer> frecuencias) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (Map.Entry<Integer, Integer> entry : frecuencias.entrySet()) {
+            dataset.setValue(entry.getValue(), "Cantidad", entry.getKey());
+        }
+
+        return dataset;
+    }
+
+    // Crear el gráfico de barras
+    private JFreeChart crearChart(DefaultCategoryDataset dataset, String titulo, String etiquetaX, String etiquetaY) {
         JFreeChart chart = ChartFactory.createBarChart(
-                "Animaciones Usadas",
-                "Categorías",
-                "Valores",
+                titulo,
+                etiquetaX,
+                etiquetaY,
                 dataset,
                 PlotOrientation.VERTICAL,
                 true,
@@ -33,9 +122,54 @@ public class Estadistica extends JPanel {
                 false
         );
 
-        // Crear panel de gráfico
-        ChartPanel chartPanel = new ChartPanel(chart);
-        add(chartPanel, BorderLayout.CENTER);
+        return chart;
+    }
+    public static String obtenerNombreColor(Color color) {
+        if (color.equals(Color.RED)) {
+            return "rojo";
+        } else if (color.equals(Color.GREEN)) {
+            return "verde";
+        } else if (color.equals(Color.BLUE)) {
+            return "azul";
+        } else if (color.equals(Color.PINK)) {
+            return "rosa";
+        } else if (color.equals(new Color(0, 191, 255))) {
+            return "celeste";
+        } else if (color.equals(Color.YELLOW)) {
+            return "amarillo";
+        } else if (color.equals(Color.ORANGE)) {
+            return "naranja";
+        } else if (color.equals(new Color(148, 0, 211))) {
+            return "violeta";
+        } else if (color.equals(Color.GRAY)) {
+            return "gris";
+        } else if (color.equals(new Color(139, 69, 19))) {
+            return "marrón";
+        } else if (color.equals(new Color(64, 224, 208))) {
+            return "turquesa";
+        } else if (color.equals(Color.BLACK)) {
+            return "negro";
+        } else if (color.equals(Color.WHITE)) {
+            return "blanco";
+        } else if (color.equals(new Color(128, 0, 128))) {
+            return "morado";
+        } else if (color.equals(new Color(255, 215, 0))) {
+            return "dorado";
+        } else if (color.equals(new Color(192, 192, 192))) {
+            return "plateado";
+        } else if (color.equals(new Color(0, 255, 255))) {
+            return "cian";
+        } else if (color.equals(new Color(250, 128, 114))) {
+            return "salmon";
+        } else if (color.equals(new Color(50, 205, 50))) {
+            return "verde lima";
+        } else if (color.equals(new Color(169, 169, 169))) {
+            return "gris oscuro";
+        } else if (color.equals(new Color(0, 0, 128))) {
+            return "azul marino";
+        } else {
+            return "desconocido";
+        }
     }
 
 }

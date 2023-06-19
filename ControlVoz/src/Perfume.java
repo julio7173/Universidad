@@ -19,6 +19,9 @@ public class Perfume extends JPanel implements Serializable {
     private boolean animando;
     private Dimension originalDimension;
     private String animacion;
+    private String nombre;
+    private String mililitros;
+    private String forma;
     private int duracion;
 
     private int columnas;
@@ -51,6 +54,7 @@ public class Perfume extends JPanel implements Serializable {
         this.animando = false;
         this.clicks = 0;
         this.padre = null;
+        this.forma = forma;
         forma = forma.toLowerCase();
         this.color = color;
         String ruta = "";
@@ -410,5 +414,25 @@ public class Perfume extends JPanel implements Serializable {
 
     public Color getColor() {
         return color;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getMililitros() {
+        return mililitros;
+    }
+
+    public void setMililitros(String mililitros) {
+        this.mililitros = mililitros;
+    }
+
+    public String getForma() {
+        return forma;
     }
 }

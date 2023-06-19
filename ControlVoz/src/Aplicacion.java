@@ -1,5 +1,11 @@
 // libraria para mostrar estadísticas
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -93,10 +99,127 @@ class CanvasFrame extends JFrame {
         leftPanel.setLayout(new GridLayout(0, 2, 0, 10)); // Usamos FlowLayout y establecemos los márgenes a 0
         leftPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        JLabel nombreLabel = new JLabel("Nombre");
+        nombreLabel.setOpaque(true);
+        leftPanel.add(nombreLabel);
+
+        JTextField nombreTexto = new JTextField("perfume");
+        nombreTexto.setFocusable(false);
+        nombreTexto.setOpaque(true);
+        nombreTexto.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                nombreTexto.setFocusable(true);
+                nombreTexto.requestFocus();
+            }
+        });
+        nombreTexto.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (nombreTexto.getText().isEmpty()) {
+                    nombreTexto.setText("perfume");
+                }
+            }
+        });
+        nombreTexto.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String input = nombreTexto.getText();
+                    if (input.isEmpty()) {
+                        // el texto es 1 si no se ingresa nada
+                        nombreTexto.setText("perfume");
+                    }
+
+                    // quitamos el focus del text field
+                    nombreTexto.setFocusable(false);
+                    leftPanel.requestFocus();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+        leftPanel.add(nombreTexto);
+
+
+        JLabel mililitrosLabel = new JLabel("Mililitros");
+        mililitrosLabel.setOpaque(true);
+        leftPanel.add(mililitrosLabel);
+
+        JTextField mililitrosTexto = new JTextField("100");
+        mililitrosTexto.setFocusable(false);
+        mililitrosTexto.setOpaque(true);
+        mililitrosTexto.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                mililitrosTexto.setFocusable(true);
+                mililitrosTexto.requestFocus();
+            }
+        });
+        mililitrosTexto.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (mililitrosTexto.getText().isEmpty()) {
+                    mililitrosTexto.setText("100");
+                } else {
+                    if (Integer.parseInt(mililitrosTexto.getText()) <= 0) {
+                        // numero tiene que ser mayor a 0
+                        mililitrosTexto.setText("100");
+                    }
+                }
+            }
+        });
+        mililitrosTexto.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c)) {
+                    e.consume(); // Ignorar caracteres no numéricos o el número 0
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String input = nombreTexto.getText();
+                    if (input.isEmpty()) {
+                        // el texto es 1 si no se ingresa nada
+                        nombreTexto.setText("100");
+                    }
+
+                    // quitamos el focus del text field
+                    nombreTexto.setFocusable(false);
+                    leftPanel.requestFocus();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+
+        leftPanel.add(mililitrosTexto);
+
+
         JLabel color = new JLabel("Color");
         color.setOpaque(true);
         leftPanel.add(color);
-
         String[] opcionesColor = {
                 "rojo",
                 "verde",
@@ -207,6 +330,10 @@ class CanvasFrame extends JFrame {
                     //panel.requestFocusInWindow(); // Establecer el foco en el panel al hacer clic en cualquier lugar excepto en el campo de texto
                     tiempoTexto.setFocusable(false);
                     leftPanel.requestFocus();
+                } else if (!nombreTexto.getBounds().contains(e.getPoint())) {
+                    //panel.requestFocusInWindow(); // Establecer el foco en el panel al hacer clic en cualquier lugar excepto en el campo de texto
+                    nombreTexto.setFocusable(false);
+                    leftPanel.requestFocus();
                 }
             }
         });
@@ -288,6 +415,8 @@ class CanvasFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (nuevo[0] != null) {
                     nuevo[0].stopAnimation();
+                    nuevo[0].setNombre(nombreTexto.getText());
+                    nuevo[0].setMililitros(mililitrosTexto.getText());
                     perfumes.add(nuevo[0]);
                     Perfume.guardarPerfumes(perfumes);
                     System.out.println("agregando...");
@@ -341,25 +470,25 @@ class CanvasFrame extends JFrame {
         detalles.setBackground(Color.decode("#15191d"));
         detalles.setLayout(new GridLayout(0, 1, 0, 2));
 
-        JLabel nombreLabel = new JLabel("Nombre: estas1231");
+        JLabel nombreLabel = new JLabel("Nombre: ");
         nombreLabel.setForeground(Color.WHITE);
         nombreLabel.setBackground(new Color(255, 255, 255, 25));
         nombreLabel.setOpaque(true);
         detalles.add(nombreLabel);
 
-        JLabel colorLabel = new JLabel("color: rojo");
+        JLabel colorLabel = new JLabel("Color: ");
         colorLabel.setForeground(Color.WHITE);
         colorLabel.setBackground(new Color(255, 255, 255, 25));
         colorLabel.setOpaque(true);
         detalles.add(colorLabel);
 
-        JLabel animacionLabel = new JLabel("animacion: sprites");
+        JLabel animacionLabel = new JLabel("Animacion: ");
         animacionLabel.setForeground(Color.WHITE);
         animacionLabel.setBackground(new Color(255, 255, 255, 25));
         animacionLabel.setOpaque(true);
         detalles.add(animacionLabel);
 
-        JLabel contenidoLabel = new JLabel("contenido: 123 ml");
+        JLabel contenidoLabel = new JLabel("Contenido: ");
         contenidoLabel.setForeground(Color.WHITE);
         contenidoLabel.setBackground(new Color(255, 255, 255, 25));
         contenidoLabel.setOpaque(true);
@@ -420,11 +549,14 @@ class CanvasFrame extends JFrame {
                     seleccionado = perfume;
                     dibujado.removeAll();
                     perfume.aumentarClicks();
+                    System.out.println(perfume.getClicks());
                     Perfume copia = new Perfume(perfume);
                     copia.setPreferredSize(new Dimension(dibujado.getWidth(), dibujado.getHeight()));
                     copia.setPadre(dibujado);
                     animacionLabel.setText("Animacion: " + perfume.getAnimacion());
                     colorLabel.setText("Color: " + obtenerNombreColor(perfume.getColor()));
+                    contenidoLabel.setText("Contenido: " + perfume.getMililitros() + " ml");
+                    nombreLabel.setText("Nombre: " + perfume.getNombre());
                     detalles.repaint();
                     dibujado.addMouseListener(new MouseAdapter() {
                         @Override
@@ -482,7 +614,7 @@ class CanvasFrame extends JFrame {
     }
 
     private void estadisticas() {
-        canvasPanel.add(new Estadistica());
+        canvasPanel.add(new Estadistica(perfumes));
     }
     public static Color obtenerColor(String colorSeleccionado) {
         switch (colorSeleccionado) {
