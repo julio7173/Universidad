@@ -9,10 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -158,6 +155,89 @@ class CanvasFrame extends JFrame {
         JComboBox<String> animacionesOpcion = new JComboBox<>(opcionesAnimaciones);
         leftPanel.add(animacionesOpcion);
 
+        JLabel timeLabel = new JLabel("Tiempo (milisegundos)");
+        timeLabel.setOpaque(true);
+        leftPanel.add(timeLabel);
+
+        JTextField tiempoTexto = new JTextField();
+        leftPanel.add(tiempoTexto);
+
+        tiempoTexto.setText("2000"); // Valor inicial
+        tiempoTexto.setFocusable(false); // Desactivar la capacidad de obtener el foco al inicio del programa
+        Font boldFont = new Font(tiempoTexto.getFont().getName(), Font.BOLD, 14);
+        tiempoTexto.setFont(boldFont);
+
+        tiempoTexto.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                tiempoTexto.setFocusable(true);
+                tiempoTexto.requestFocusInWindow();
+            }
+        });
+        tiempoTexto.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!Character.isDigit(c)) {
+                    e.consume(); // Ignorar caracteres no numéricos o el número 0
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    String input = tiempoTexto.getText();
+                    if (input.isEmpty()) {
+                        // el texto es 1 si no se ingresa nada
+                        tiempoTexto.setText("1000");
+                    } else {
+                        if (Integer.parseInt(tiempoTexto.getText()) == 0) {
+                            // el texto es 1 si no se ingresa nada
+                            tiempoTexto.setText("1000");
+                        }
+                    }
+
+                    // quitamos el focus del text field
+                    tiempoTexto.setFocusable(false);
+                    requestFocusInWindow();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+
+        leftPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!tiempoTexto.getBounds().contains(e.getPoint())) {
+                    //panel.requestFocusInWindow(); // Establecer el foco en el panel al hacer clic en cualquier lugar excepto en el campo de texto
+                    tiempoTexto.setFocusable(false);
+                    leftPanel.requestFocus();
+                }
+            }
+        });
+
+        tiempoTexto.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (tiempoTexto.getText().isEmpty()) {
+                    tiempoTexto.setText("2000");
+                } else {
+                    if (Integer.parseInt(tiempoTexto.getText()) == 0) {
+                        // el texto es 1 si no se ingresa nada
+                        tiempoTexto.setText("2000");
+                    }
+                }
+            }
+        });
+
         JButton showButton = new JButton("Mostrar");
         leftPanel.add(showButton);
 
@@ -203,12 +283,14 @@ class CanvasFrame extends JFrame {
                 nuevo[0].setPadre(canvas);
                 canvas.add(nuevo[0]);
                 //nuevo[0].startAnimation();
+                canvas.setBackground(Color.WHITE);
                 canvas.revalidate();
                 canvas.repaint();
                 //System.out.println(Perfume.leerPerfumes());
             }
         });
-        // guaramos el nuevo perfume, si se mostro con el boton mostrar
+
+        // guardamos el nuevo perfume, si se mostro con el boton mostrar
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -224,7 +306,7 @@ class CanvasFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (nuevo[0] != null) {
                     if (nuevo[0].isAnimable()) {
-                        nuevo[0].startAnimation();
+                        nuevo[0].startAnimation(Integer.parseInt(tiempoTexto.getText()));
                     } else {
                         nuevo[0].stopAnimation();
                     }
@@ -369,6 +451,7 @@ class Perfume extends JPanel implements Serializable {
     private Timer timer;
     private boolean animando;
     private int originalSize;
+    private Dimension originalDimension;
 
     public Perfume(Perfume copiar) {
         this.padre = copiar.padre;
@@ -444,9 +527,11 @@ class Perfume extends JPanel implements Serializable {
             int canvasSize = Math.min(getWidth(), getHeight());
             int x = (getWidth() - canvasSize) / 2;
             int y = (getHeight() - canvasSize) / 2;
-            g.setColor(color); // Puedes elegir el color que desees
+            g.setColor(padre.getBackground());
+            g.fillRect(0,0, getWidth(), getHeight());
+            g.setColor(color);
             g.fillRect(x, y, canvasSize, canvasSize);
-            // Dibuja la imagen en el Canvas
+            // Dibuja la imagen en el panel
             g.drawImage(image, x, y, canvasSize, canvasSize, this);
         }
     }
@@ -478,37 +563,41 @@ class Perfume extends JPanel implements Serializable {
 
         return lista;
     }
-    public void startAnimation() {
+    public void startAnimation(int animationDuration) {
         if (!animando) {
+            originalDimension = new Dimension(getWidth(), getHeight());
             animando = true;
             // Crea el temporizador para la animación
-            int animationDuration = 2000; // Duración de la animación en milisegundos
-            int framesPerSecond = 60; // Cuadros por segundo
-            int delay = 1000 / framesPerSecond; // Retardo entre cuadros en milisegundos
-            int totalFrames = animationDuration / delay;
+            int totalFrames = animationDuration / 16; // Aproximadamente 60 cuadros por segundo
             int targetSize = Math.min(padre.getWidth(), padre.getHeight());
-            System.out.println(targetSize);
-            float sizeIncrement = (float) targetSize / totalFrames;
-            //float colorRedIncrement = (targetColorRed - color.getRed()) / totalFrames;
-            //float colorGreenIncrement = (targetColorGreen - color.getGreen()) / totalFrames;
-            //float colorBlueIncrement = (targetColorBlue - color.getBlue()) / totalFrames;
 
-            timer = new Timer(delay, new ActionListener() {
-                private int frameCount = 0;
+            int centerX = padre.getWidth() / 2; // Coordenada X del centro del panel padre
+            int centerY = padre.getHeight() / 2; // Coordenada Y del centro del panel padre
 
+            long startTime = System.currentTimeMillis(); // Obtiene el tiempo de inicio de la animación
+            timer = new Timer(16, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (frameCount < totalFrames) {
-                        int newWidth = (int) (frameCount * sizeIncrement);
-                        int newHeight = (int) (frameCount * sizeIncrement);
-                        // Incrementa el tamaño y el color en cada cuadro
+                    long elapsedTime = System.currentTimeMillis() - startTime; // Calcula el tiempo transcurrido
+
+                    if (elapsedTime < animationDuration) {
+                        float progress = (float) elapsedTime / animationDuration; // Calcula el progreso de la animación
+                        int newSize = (int) (progress * targetSize);
+                        int newWidth = newSize;
+                        int newHeight = newSize;
+
+                        // Calcula las coordenadas del origen del componente animado
+                        int startX = centerX - (newWidth / 2);
+                        int startY = centerY - (newHeight / 2);
+
+                        // Actualiza el tamaño y la ubicación del componente en cada cuadro
                         setSize(new Dimension(newWidth, newHeight));
+                        setLocation(startX, startY);
+
                         // Redibuja el Canvas para reflejar los cambios
                         repaint();
-
-                        frameCount++;
                     } else {
-                        // Detiene el temporizador una vez que se alcanzan los valores objetivo
+                        // Detiene el temporizador una vez que se alcanza la duración total
                         timer.stop();
                         animando = false;
                     }
@@ -519,11 +608,58 @@ class Perfume extends JPanel implements Serializable {
             timer.start();
         }
     }
+    public void disappearAnimation(int animationDuration) {
+        if (!animando) {
+            animando = true;
+            // Crea el temporizador para la animación
+            int totalFrames = animationDuration / 16; // Aproximadamente 60 cuadros por segundo
+            int targetSize = 0;
+
+            int centerX = padre.getWidth() / 2; // Coordenada X del centro del panel padre
+            int centerY = padre.getHeight() / 2; // Coordenada Y del centro del panel padre
+
+            long startTime = System.currentTimeMillis(); // Obtiene el tiempo de inicio de la animación
+            timer = new Timer(16, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    long elapsedTime = System.currentTimeMillis() - startTime; // Calcula el tiempo transcurrido
+
+                    if (elapsedTime < animationDuration) {
+                        float progress = 1 - ((float) elapsedTime / animationDuration); // Calcula el progreso de la animación (decreciente)
+                        int newSize = (int) (progress * targetSize);
+                        int newWidth = newSize;
+                        int newHeight = newSize;
+
+                        // Calcula las coordenadas del origen del componente animado
+                        int startX = centerX - (newWidth / 2);
+                        int startY = centerY - (newHeight / 2);
+
+                        // Actualiza el tamaño y la ubicación del componente en cada cuadro
+                        setSize(new Dimension(newWidth, newHeight));
+                        setLocation(startX, startY);
+
+                        // Redibuja el Canvas para reflejar los cambios
+                        repaint();
+                    } else {
+                        // Detiene el temporizador una vez que se alcanza la duración total
+                        timer.stop();
+                        animando = false;
+                    }
+                }
+            });
+
+            // Inicia la animación
+            timer.start();
+        }
+    }
+
     public void stopAnimation() {
         if (timer != null && timer.isRunning()) {
+
             timer.stop();
             animando = false;
-            setSize(new Dimension(originalSize, originalSize));
+            setSize(originalDimension);
+            setLocation(0, 0);
         }
     }
     public boolean isAnimable() {
@@ -567,4 +703,5 @@ class EstadisticasPanel extends JPanel {
         ChartPanel chartPanel = new ChartPanel(chart);
         add(chartPanel, BorderLayout.CENTER);
     }
+
 }
