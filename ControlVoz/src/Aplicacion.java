@@ -7,9 +7,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,8 +25,6 @@ public class Aplicacion {
 class CanvasFrame extends JFrame {
     private ArrayList<Perfume> perfumes;
     private JPanel canvasPanel;
-    private JButton searchButton;
-    JTextField textField;
     private Perfume seleccionado;
 
     public CanvasFrame() {
@@ -36,8 +36,8 @@ class CanvasFrame extends JFrame {
         setSize(1280, 720);
         setResizable(false);
 
-        searchButton = new JButton("Buscar");
-        textField = new JTextField(50);
+
+
         // Crea el menú
         JMenuBar menuBar = new JMenuBar();
 
@@ -448,8 +448,35 @@ class CanvasFrame extends JFrame {
     }
     private void buscar() {
         canvasPanel.removeAll();
-        searchButton.setHorizontalAlignment(SwingConstants.CENTER);
-        textField.setHorizontalAlignment(SwingConstants.LEFT);
+
+        JButton searchButton = new JButton("Buscar");
+        searchButton.setBackground(new Color(16, 36, 112));
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setFocusable(false);
+        searchButton.setSelected(false);
+
+        JTextField textField = new JTextField(50);
+
+        searchButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // simulamos enter en el textfield
+                textField.dispatchEvent(new KeyEvent(textField, KeyEvent.KEY_PRESSED, 0,0 , KeyEvent.VK_ENTER));
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
 
         // panel de texto superior
         JPanel busqueda = new JPanel();
@@ -621,15 +648,19 @@ class CanvasFrame extends JFrame {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     dibujado.removeAll();
+                    seleccionado = null;
+                    lista.removeAll();
                     String input = textField.getText();
                     Pattern pattern = Pattern.compile(input);
                     int i = 0;
+                    GridBagConstraints gbc = new GridBagConstraints();
+                    gbc.insets = new Insets(10, 10, 10, 10); // Espacio entre componentes
                     for (Perfume perfume : perfumes) {
                         Matcher matcher = pattern.matcher(perfume.getNombre());
                         if (matcher.find()) {
+                            System.out.println("pueba: " + perfume.getNombre());
                             JPanel padre = new JPanel();
                             padre.setBackground(Color.WHITE);
-
                             // cargamos la imagen, al serializar se guardo la ruta de la imagen, no se puede
                             // serializar BufferedImage
                             perfume.setPadre(padre);
@@ -690,6 +721,7 @@ class CanvasFrame extends JFrame {
                     }
                     dibujado.repaint();
                     lista.repaint();
+                    lista.revalidate();
                 }
             }
 
