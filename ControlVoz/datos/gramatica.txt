@@ -1,0 +1,3 @@
+#JSGF V1.0;
+grammar gramatica;
+public <figuras> = (save|show|play);

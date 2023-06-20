@@ -1,31 +1,37 @@
 // libraria para mostrar estadísticas
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
-
+import javax.speech.Central;
+import javax.speech.EngineException;
+import javax.speech.EngineModeDesc;
+import javax.speech.recognition.*;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.security.Key;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Aplicacion {
     public static void main(String[] args) {
+
         CanvasFrame frame = new CanvasFrame();
+        frame.initRecognizer();
         frame.run();
     }
 }
 class CanvasFrame extends JFrame {
+    private Recognizer recognizer;
     private ArrayList<Perfume> perfumes;
     private JPanel canvasPanel;
     private Perfume seleccionado;
+    private boolean contruir;
 
     public CanvasFrame() {
         // leemos los perfumes guardados en datos
@@ -92,6 +98,7 @@ class CanvasFrame extends JFrame {
     }
 
     private void construir() {
+        contruir = true;
         canvasPanel.removeAll();
         Perfume[] nuevo = new Perfume[1];
 
@@ -447,6 +454,7 @@ class CanvasFrame extends JFrame {
         canvasPanel.repaint();
     }
     private void buscar() {
+        contruir = false;
         canvasPanel.removeAll();
 
         JButton searchButton = new JButton("Buscar");
@@ -734,6 +742,7 @@ class CanvasFrame extends JFrame {
     }
 
     private void estadisticas() {
+        contruir = false;
         canvasPanel.add(new Estadistica(perfumes));
     }
     public static Color obtenerColor(String colorSeleccionado) {
@@ -831,7 +840,98 @@ class CanvasFrame extends JFrame {
             return "desconocido";
         }
     }
+    public void initRecognizer() {
+        try {
+            // Inicializar el reconocedor
 
+            recognizer = Central.createRecognizer(new EngineModeDesc(Locale.ENGLISH));
+            File archivo = new File("ControlVoz/datos/gramatica.txt");
+
+            BufferedReader gramatica;
+            FileInputStream fileInputStream = new FileInputStream(archivo);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+            gramatica = new BufferedReader(inputStreamReader);
+
+            recognizer.allocate();
+            RuleGrammar gram = recognizer.loadJSGF(gramatica);
+            gram.setEnabled(true);
+
+            recognizer.addResultListener(new ResultListener() {
+                @Override
+                public void audioReleased(ResultEvent resultEvent) {
+
+                }
+
+                @Override
+                public void grammarFinalized(ResultEvent resultEvent) {
+
+                }
+
+                @Override
+                public void resultAccepted(ResultEvent event) {
+                    if (contruir) {
+                        try {
+                            Result r = (Result) (event.getSource());
+
+                            ResultToken tokens[] = r.getBestTokens();
+
+                            for (int i = 0; i < tokens.length; i++) {
+                                String palabra = tokens[i].getSpokenText();
+                                //System.out.println(palabra);
+                                if (palabra.contains("exit")) {
+                                    try {
+                                        recognizer.deallocate();
+                                    } catch (EngineException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                    System.exit(0);
+                                }
+                                if (palabra.contains("show")) {
+                                    System.out.println("mostrar");
+
+                                }else if (palabra.contains("save")) {
+                                    System.out.println("guardar");
+                                }else if (palabra.contains("play")) {
+                                    System.out.println("animar");
+                                }
+
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void resultCreated(ResultEvent resultEvent) {
+
+                }
+
+                @Override
+                public void resultRejected(ResultEvent resultEvent) {
+
+                }
+
+                @Override
+                public void resultUpdated(ResultEvent resultEvent) {
+
+                }
+
+                @Override
+                public void trainingInfoReleased(ResultEvent resultEvent) {
+
+                }
+            });
+
+
+            // Inicia el reconocedor
+            recognizer.commitChanges();
+            recognizer.requestFocus();
+            recognizer.resume();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void run() {
         SwingUtilities.invokeLater(() -> {
