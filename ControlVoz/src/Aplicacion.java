@@ -32,6 +32,7 @@ class CanvasFrame extends JFrame {
     private JPanel canvasPanel;
     private Perfume seleccionado;
     private boolean contruir;
+    private JButton showButton, saveButton, animarButton;
 
     public CanvasFrame() {
         // leemos los perfumes guardados en datos
@@ -366,17 +367,17 @@ class CanvasFrame extends JFrame {
             }
         });
 
-        JButton showButton = new JButton("Mostrar");
+        showButton = new JButton("Mostrar");
         leftPanel.add(showButton);
 
         leftPanel.add(new JLabel());
 
-        JButton saveButton = new JButton("Guardar");
+        saveButton = new JButton("Guardar");
         leftPanel.add(saveButton);
 
         leftPanel.add(new JLabel());
 
-        JButton animarButton = new JButton("Animar");
+        animarButton = new JButton("Animar");
         leftPanel.add(animarButton);
 
         leftPanel.add(new JLabel());
@@ -428,7 +429,7 @@ class CanvasFrame extends JFrame {
                     nuevo[0].setMililitros(mililitrosTexto.getText());
                     perfumes.add(nuevo[0]);
                     Perfume.guardarPerfumes(perfumes);
-                    System.out.println("agregando...");
+                    System.out.println("guardando...");
                     nuevo[0] = null;
                     canvas.removeAll();
                     canvas.revalidate();
@@ -742,8 +743,11 @@ class CanvasFrame extends JFrame {
     }
 
     private void estadisticas() {
+        canvasPanel.removeAll();
         contruir = false;
         canvasPanel.add(new Estadistica(perfumes));
+        canvasPanel.revalidate();
+        canvasPanel.repaint();
     }
     public static Color obtenerColor(String colorSeleccionado) {
         switch (colorSeleccionado) {
@@ -869,37 +873,50 @@ class CanvasFrame extends JFrame {
 
                 @Override
                 public void resultAccepted(ResultEvent event) {
-                    if (contruir) {
-                        try {
-                            Result r = (Result) (event.getSource());
+                    try {
+                        Result r = (Result) (event.getSource());
 
-                            ResultToken tokens[] = r.getBestTokens();
+                        ResultToken tokens[] = r.getBestTokens();
 
-                            for (int i = 0; i < tokens.length; i++) {
-                                String palabra = tokens[i].getSpokenText();
-                                //System.out.println(palabra);
-                                if (palabra.contains("exit")) {
-                                    try {
-                                        recognizer.deallocate();
-                                    } catch (EngineException ex) {
-                                        throw new RuntimeException(ex);
-                                    }
-                                    System.exit(0);
+                        for (int i = 0; i < tokens.length; i++) {
+                            String palabra = tokens[i].getSpokenText();
+                            //System.out.println(palabra);
+                            if (palabra.contains("exit")) {
+                                try {
+                                    recognizer.deallocate();
+                                } catch (EngineException ex) {
+                                    throw new RuntimeException(ex);
                                 }
+                                System.exit(0);
+                            }
+                            if (contruir) {
                                 if (palabra.contains("show")) {
                                     System.out.println("mostrar");
+                                    showButton.doClick();
 
-                                }else if (palabra.contains("save")) {
+                                } else if (palabra.contains("save")) {
                                     System.out.println("guardar");
-                                }else if (palabra.contains("play")) {
+                                    saveButton.doClick();
+                                } else if (palabra.contains("play")) {
                                     System.out.println("animar");
+                                    animarButton.doClick();
                                 }
-
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            if (palabra.contains("build")) {
+                                System.out.println("construir");
+                                construir();
+                            } else if (palabra.contains("search")) {
+                                System.out.println("buscar");
+                                buscar();
+                            } else if (palabra.contains("stat")) {
+                                System.out.println("estadisticas");
+                                estadisticas();
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+
                 }
 
                 @Override

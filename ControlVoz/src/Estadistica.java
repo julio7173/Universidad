@@ -9,22 +9,23 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.PriorityQueue;
 
 public class Estadistica extends JPanel {
     public Estadistica(ArrayList<Perfume> perfumes) {
         setLayout(new GridLayout(2, 2));
 
-        // Calcular las frecuencias de cada atributo
+        // Calcular las frecuencias de cada atributo de un perfume
         Map<String, Integer> frecuenciaAnimaciones = calcularFrecuencias(perfumes, "animacion");
         Map<String, Integer> frecuenciaColores = calcularFrecuencias(perfumes, "color");
         Map<String, Integer> frecuenciaFormas = calcularFrecuencias(perfumes, "forma");
-        Map<Integer, Integer> frecuenciaClicks = calcularFrecuenciasNumericas(perfumes, "clicks");
+        Map<String, Integer> frecuenciaClicks = calcularFrecuenciasNumericas(perfumes, "clicks");
 
         // Crear datasets con las frecuencias
         DefaultCategoryDataset datasetAnimaciones = crearDataset(frecuenciaAnimaciones);
         DefaultCategoryDataset datasetColores = crearDataset(frecuenciaColores);
         DefaultCategoryDataset datasetFormas = crearDataset(frecuenciaFormas);
-        DefaultCategoryDataset datasetClicks = crearDatasetNumericos(frecuenciaClicks);
+        DefaultCategoryDataset datasetClicks = crearDataset(frecuenciaClicks);
 
         // Crear gráficos de barras
         JFreeChart chartAnimaciones = crearChart(datasetAnimaciones, "Animaciones Usadas", "Animaciones", "Cantidad");
@@ -45,7 +46,7 @@ public class Estadistica extends JPanel {
         add(chartPanelClicks);
     }
 
-    // Calcular las frecuencias de un atributo en la lista de perfumes
+    // calculamos estadisticas de atributos de perfumes
     private Map<String, Integer> calcularFrecuencias(ArrayList<Perfume> perfumes, String atributo) {
         Map<String, Integer> frecuencias = new HashMap<>();
 
@@ -71,19 +72,20 @@ public class Estadistica extends JPanel {
     }
 
     // calculamos los clicks de perfumes
-    private Map<Integer, Integer> calcularFrecuenciasNumericas(ArrayList<Perfume> perfumes, String atributo) {
-        Map<Integer, Integer> frecuencias = new HashMap<>();
-
-        for (Perfume perfume : perfumes) {
-            int valor = 0;
-
-            if (atributo.equals("clicks")) {
-                valor = perfume.getClicks();
+    private Map<String, Integer> calcularFrecuenciasNumericas(ArrayList<Perfume> perfumes, String atributo) {
+        Map<String, Integer> frecuencias = new HashMap<>();
+        if (atributo.equals("clicks")) {
+            PriorityQueue<Perfume> colaPrioridad = new PriorityQueue<>();
+            // agregamos todos los perfumes a la cola de prioridad
+            colaPrioridad.addAll(perfumes);
+            int current = 0;
+            int limite = 3;
+            while (!colaPrioridad.isEmpty() && current < limite) {
+                Perfume actual = colaPrioridad.poll();
+                frecuencias.put(String.valueOf(actual.getClass()), actual.getClicks());
+                current++;
             }
-
-            frecuencias.put(valor, frecuencias.getOrDefault(valor, 0) + 1);
         }
-
         return frecuencias;
     }
 

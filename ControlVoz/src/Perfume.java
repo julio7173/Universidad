@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Perfume extends JPanel implements Serializable {
+public class Perfume extends JPanel implements Serializable, Comparable<Perfume> {
     // BufferedImage no se guardaran al momento de serializar
     private transient BufferedImage image, spriteSheet;
     private Color color;
@@ -434,5 +434,11 @@ public class Perfume extends JPanel implements Serializable {
 
     public String getForma() {
         return forma;
+    }
+
+    @Override
+    public int compareTo(Perfume otro) {
+        // comparamos por la cantidad de clicks
+        return Integer.compare(otro.getClicks(), this.getClicks());
     }
 }
