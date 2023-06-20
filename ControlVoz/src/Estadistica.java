@@ -6,10 +6,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Estadistica extends JPanel {
     public Estadistica(ArrayList<Perfume> perfumes) {
@@ -80,9 +77,10 @@ public class Estadistica extends JPanel {
             colaPrioridad.addAll(perfumes);
             int current = 0;
             int limite = 3;
+            Random random = new Random();
             while (!colaPrioridad.isEmpty() && current < limite) {
                 Perfume actual = colaPrioridad.poll();
-                frecuencias.put(String.valueOf(actual.getClass()), actual.getClicks());
+                frecuencias.put(String.valueOf(actual.getClass())+random.nextInt(1000), actual.getClicks());
                 current++;
             }
         }
