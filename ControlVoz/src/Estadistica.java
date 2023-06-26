@@ -183,14 +183,6 @@ public class Estadistica extends JPanel {
                 true, // Mostrar tooltips
                 false // No generar URLs
         );
-        // Obtener el objeto PiePlot del gráfico
-        PiePlot plot = (PiePlot) chart.getPlot();
-
-        // Configurar los colores de cada parte del pastel
-        plot.setSectionPaint("Primer Valor", Color.RED);
-        plot.setSectionPaint("Segundo Valor", Color.BLUE);
-        plot.setSectionPaint("Tercer Valor", Color.GREEN);
-
         return chart;
     }
 
