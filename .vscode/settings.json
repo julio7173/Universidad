@@ -2,6 +2,18 @@
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
         "Aplicacion-de-Animacion/Libraries/jcommon-1.0.23.jar",
-        "Aplicacion-de-Animacion/Libraries/jfreechart-1.0.19.jar"
+        "Aplicacion-de-Animacion/Libraries/jfreechart-1.0.19.jar",
+        "ControlVoz/lib/cgjsapi.jar",
+        "ControlVoz/lib/hamcrest-core-1.3.jar",
+        "ControlVoz/lib/jcommon-1.0.23.jar",
+        "ControlVoz/lib/jfreechart-1.0.19.jar",
+        "ControlVoz/lib/jfreechart-1.0.19-experimental.jar",
+        "ControlVoz/lib/jfreechart-1.0.19-swt.jar",
+        "ControlVoz/lib/jfreesvg-2.0.jar",
+        "ControlVoz/lib/junit-4.11.jar",
+        "ControlVoz/lib/orsoncharts-1.4-eval-nofx.jar",
+        "ControlVoz/lib/orsonpdf-1.6-eval.jar",
+        "ControlVoz/lib/servlet.jar",
+        "ControlVoz/lib/swtgraphics2d.jar"
     ]
 }

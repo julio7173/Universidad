@@ -1,8 +1,10 @@
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,13 +24,13 @@ public class Estadistica extends JPanel {
         DefaultCategoryDataset datasetAnimaciones = crearDataset(frecuenciaAnimaciones);
         DefaultCategoryDataset datasetColores = crearDataset(frecuenciaColores);
         DefaultCategoryDataset datasetFormas = crearDataset(frecuenciaFormas);
-        DefaultCategoryDataset datasetClicks = crearDataset(frecuenciaClicks);
+        DefaultPieDataset datasetClicks = crearDatasetPie(frecuenciaClicks);
 
         // Crear gráficos de barras
         JFreeChart chartAnimaciones = crearChart(datasetAnimaciones, "Animaciones Usadas", "Animaciones", "Cantidad");
         JFreeChart chartColores = crearChart(datasetColores, "Colores Usados", "Colores", "Cantidad");
         JFreeChart chartFormas = crearChart(datasetFormas, "Formas Usadas", "Formas", "Cantidad");
-        JFreeChart chartClicks = crearChart(datasetClicks, "Clicks", "Cantidad", "Cantidad");
+        JFreeChart chartClicks = crearPieChart(datasetClicks, "Clicks", "Cantidad", "Cantidad");
 
         // Crear paneles de gráficos
         ChartPanel chartPanelAnimaciones = new ChartPanel(chartAnimaciones);
@@ -80,7 +82,7 @@ public class Estadistica extends JPanel {
             Random random = new Random();
             while (!colaPrioridad.isEmpty() && current < limite) {
                 Perfume actual = colaPrioridad.poll();
-                frecuencias.put(String.valueOf(actual.getClass())+random.nextInt(1000), actual.getClicks());
+                frecuencias.put(String.valueOf(actual.getNombre()) + random.nextInt(1000), actual.getClicks());
                 current++;
             }
         }
@@ -110,21 +112,8 @@ public class Estadistica extends JPanel {
     }
 
     // Crear el gráfico de barras
-    private JFreeChart crearChart(DefaultCategoryDataset dataset, String titulo, String etiquetaX, String etiquetaY) {
-        JFreeChart chart = ChartFactory.createBarChart(
-                titulo,
-                etiquetaX,
-                etiquetaY,
-                dataset,
-                PlotOrientation.VERTICAL,
-                true,
-                true,
-                false
-        );
-
-        return chart;
-    }
     public static String obtenerNombreColor(Color color) {
+
         if (color.equals(Color.RED)) {
             return "rojo";
         } else if (color.equals(Color.GREEN)) {
@@ -170,6 +159,49 @@ public class Estadistica extends JPanel {
         } else {
             return "desconocido";
         }
+    }
+
+    private JFreeChart crearChart(DefaultCategoryDataset dataset, String titulo, String etiquetaX, String etiquetaY) {
+        JFreeChart chart = ChartFactory.createBarChart(
+                titulo,
+                etiquetaX,
+                etiquetaY,
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false);
+
+        return chart;
+    }
+
+    private JFreeChart crearPieChart(DefaultPieDataset dataset, String tituloGrafico, String etiquetaLeyenda, String etiquetaTooltip) {
+        JFreeChart chart = ChartFactory.createPieChart(
+                tituloGrafico, // Título del gráfico
+                dataset, // Conjunto de datos
+                true, // Mostrar leyenda
+                true, // Mostrar tooltips
+                false // No generar URLs
+        );
+        // Obtener el objeto PiePlot del gráfico
+        PiePlot plot = (PiePlot) chart.getPlot();
+
+        // Configurar los colores de cada parte del pastel
+        plot.setSectionPaint("Primer Valor", Color.RED);
+        plot.setSectionPaint("Segundo Valor", Color.BLUE);
+        plot.setSectionPaint("Tercer Valor", Color.GREEN);
+
+        return chart;
+    }
+
+    private DefaultPieDataset crearDatasetPie(Map<String, Integer> frecuencias) {
+        DefaultPieDataset dataset = new DefaultPieDataset();
+
+        for (Map.Entry<String, Integer> entry : frecuencias.entrySet()) {
+            dataset.setValue(entry.getKey(), entry.getValue());
+        }
+
+        return dataset;
     }
 
 }

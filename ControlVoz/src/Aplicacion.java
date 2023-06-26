@@ -1,5 +1,3 @@
-// libraria para mostrar estadísticas
-
 import javax.speech.Central;
 import javax.speech.EngineException;
 import javax.speech.EngineModeDesc;
@@ -382,7 +380,7 @@ class CanvasFrame extends JFrame {
 
         leftPanel.add(new JLabel());
 
-        for (int i = 0; i < 20 ; i++) {
+        for (int i = 0; i < 5 ; i++) {
             leftPanel.add(new JLabel());
         }
 
@@ -542,11 +540,11 @@ class CanvasFrame extends JFrame {
                     dibujado.removeAll();
                     dibujado.revalidate();
                     dibujado.repaint();
+                    // quitamos el perfume y lo eliminos del archivo
                     perfumes.remove(seleccionado);
                     Perfume.guardarPerfumes(perfumes);
                     seleccionado = null;
                     buscar();
-
                 }
             }
         });
